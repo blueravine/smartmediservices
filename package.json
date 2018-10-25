@@ -1,0 +1,24 @@
+{
+  "name": "smartmediservices",
+  "version": "1.0.0",
+  "description": "Web Services for SmartMedi application",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/blueravine/smartmediservices.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/blueravine/smartmediservices/issues"
+  },
+  "homepage": "https://github.com/blueravine/smartmediservices#readme",
+  "dependencies": {
+    "express": "^4.16.4",
+    "mongoose": "^5.3.6",
+    "schm": "^0.4.1"
+  }
+}
