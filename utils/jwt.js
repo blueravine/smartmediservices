@@ -2,6 +2,8 @@ const jwt   = require('jsonwebtoken');
 const config = require('../config.json');
 
 let secret = config.secret;
+let tokenexpiry = config.jwtexpiresin?config.jwtexpiresin:"15d";
+let tokenalgorithm = config.jwtalgorithm?config.jwtalgorithm:"15d";
 
 module.exports = {
   getToken: (req, res, next) => {
@@ -34,8 +36,8 @@ module.exports = {
       issuer:  $Options.issuer,
       subject:  $Options.subject,
       audience:  $Options.audience,
-      expiresIn:  "15m",
-      algorithm:  "HS256"    
+      expiresIn:  tokenexpiry,
+      algorithm:  tokenalgorithm
   };
   console.log(signOptions.issuer + " - " + signOptions.subject + " - " + signOptions.audience + " - " + signOptions.expiresIn + " - " + signOptions.algorithm);
   return jwt.sign(payload, secret, signOptions);
@@ -47,8 +49,8 @@ verify: (token, $Option) => {
       issuer:  $Option.issuer,
       subject:  $Option.subject,
       audience:  $Option.audience,
-      expiresIn:  "15m",
-      algorithm:  ["HS256"]
+      expiresIn:  tokenexpiry,
+      algorithm:  [tokenalgorithm]
   };
    try{
      return jwt.verify(token, secret, verifyOptions);

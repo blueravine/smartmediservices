@@ -19,7 +19,12 @@ exports.register = function (req, res, next) {
 exports.testresult_create = function (req, res, next) {
     console.log('finding test' + JSON.stringify(req.body.normal));
 req.body.forEach((element) => {
-    Test.findOne({"testname": element.testname, "countrycode": element.countrycode}, function (err, test) {
+    Test.findOne({"testname": element.name,
+    "testagemin": {$lte: element.age},
+    "testagemax": {$gte: element.age},
+    $and:[{$or:[{"testgender": element.gender},{"testgender":"UNISEX"}]},
+    {$or: [{"countrycode": element.countrycode},{"countrycode": 0}]}]
+}, function (err, test) {
         if (err) {
             console.log('error while finding test by name.');
             return next(err);
@@ -30,10 +35,12 @@ req.body.forEach((element) => {
 
             let testresult = new TestResult({
                 testdate: element.testdate,
+                ageontest: element.ageontest,
                 testname: element.testname,
                 mobile: element.mobile,
                 countrycode: element.countrycode,
                 value: element.value,
+                testunit: testunit.testunit,
                 normalmin:test.normalmin,
                 normalmax:test.normalmax,
                 normalcomparator:test.normalcomparator,

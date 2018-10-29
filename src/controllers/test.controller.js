@@ -12,6 +12,10 @@ req.body.forEach(element => {
         let test = new Test({
             countrycode: element.countrycode,
             testname: element.testname,
+            testunit: element.testunit,
+            testagemin: element.testagemin,
+            testagemax: element.testagemax,
+            testgender: element.testgender,
             normalmin:element.normalmin,
             normalmax:element.normalmax,
             normalcomparator:element.normalcomparator,
@@ -35,9 +39,14 @@ req.body.forEach(element => {
 };
 
 exports.tests_byname = function (req, res, next) {
-    console.log('retrieving tests by name');
+    console.log('retrieving tests by name' + JSON.stringify(req.body));
 
-                Test.findOne({"testname": req.body.name, "countrycode": req.body.countrycode}, function (err, test) {
+                Test.findOne({"testname": req.body.name,
+                       "testagemin": {$lte: req.body.age},
+                       "testagemax": {$gte: req.body.age},
+                       $and:[{$or:[{"testgender": req.body.gender},{"testgender":"UNISEX"}]},
+                       {$or: [{"countrycode": req.body.countrycode},{"countrycode": 0}]}]
+                }, function (err, test) {
                     if (err) {
                         console.log('error while finding tests by name.');
                         return next(err);

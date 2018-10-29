@@ -6,6 +6,7 @@ var testresultSchema = new Schema({
     mobile: {type: Number, required: false},
     countrycode: {type: Number, required: false},
     testdate: {type: Number, required: false},
+    ageontest: {type: Number, required: false},
     testname: {type: String, required: false},
     value: {type: Number, required: false},
     normalmin:{type: Number, required: false},
