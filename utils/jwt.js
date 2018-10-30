@@ -1,6 +1,6 @@
 const jwt   = require('jsonwebtoken');
 const config = require('../config.json');
-const techerrorres = require('./src/schemas/api.response.techerror');
+const techerrorres = require('../src/schemas/api.response.techerror');
 
 let secret = config.secret;
 let tokenexpiry = config.jwtexpiresin?config.jwtexpiresin:"15d";
