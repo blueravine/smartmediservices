@@ -16,7 +16,7 @@ module.exports = {
 
           req.token = token;
           console.log('token: ' + token);
-          console.log('mobile: ' + req.body.mobile + ' country code: ' + req.body.countrycode);
+          console.log('mobile: ' + req.headers.mobile + ' country code: ' + req.headers.countrycode);
           next();
       }
       else{
@@ -26,7 +26,7 @@ module.exports = {
         techerrorres.message = 'Error while getting token!';
         techerrorres.messagecode = 5002;
     
-        res.status(response.status).send(response);
+        res.status(techerrorres.status).send(techerrorres);
       }
   },
 
@@ -55,6 +55,7 @@ verify: (token, $Option) => {
    try{
      return jwt.verify(token, secret, verifyOptions);
    }catch (err){
+     console.log(err);
      return false;
    }
 },

@@ -33,7 +33,7 @@ const db = mongoose.connection;
 db.on('error', console.error.bind(console, 'MongoDB connection error:'));
 
 let signOptions = {
-    issuer: "smartservices",
+    issuer: "smartmediservices",
     subject: "",
     audience: ""
 };
@@ -63,8 +63,8 @@ app.use(smartjwt.getToken.unless({
         }));
 
 const verifyToken = function (req, res, next) {
-        signOptions.subject=req.body.countrycode + '-' + req.body.mobile;
-        signOptions.audience=req.body.jwtaudience;
+        signOptions.subject=req.headers.countrycode + '-' + req.headers.mobile;
+        signOptions.audience=req.headers.jwtaudience;
 
         if(smartjwt.verify(req.token, signOptions)){
             next();
@@ -73,7 +73,7 @@ const verifyToken = function (req, res, next) {
         response.status=403;
         response.message = 'Token not valid!';
         response.messagecode = 1009;
-        response.User = req.body.mobile;
+        response.User = req.headers.mobile;
         response.token = req.token;
     
         res.status(response.status).send(response);

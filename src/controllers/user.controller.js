@@ -173,7 +173,10 @@ exports.user_details_bymobile = function (req, res, next) {
 exports.user_update_bymobile = function (req, res, next) {
     console.log('updating user by mobile');
     
-    User.findOneAndUpdate({"mobile": req.body.mobile, "countrycode": req.body.countrycode}, {$set: req.body}, function (err, user) {
+    User.findOneAndUpdate({"mobile": req.body.mobile, "countrycode": req.body.countrycode},
+                          {$set: req.body},
+                          {new: true},
+                          function (err, user) {
         if (err) {
             return next(err);
         }
