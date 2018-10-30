@@ -42,7 +42,7 @@ req.body.forEach(element => {
 exports.alerts_bymobile = function (req, res, next) {
     console.log('retrieving alerts by mobile' + JSON.stringify(req.body));
 
-                Alert.findOne({"mobile": req.body.mobile}, function (err, alert) {
+                Alert.findOne({"mobile": req.body.mobile, "countrycode": req.body.countrycode}, function (err, alert) {
                     if (err) {
                         console.log('error while finding alerts by mobile.');
                         return next(err);
@@ -59,7 +59,7 @@ exports.alerts_bymobile = function (req, res, next) {
                     else {
                         console.log('alerts not found by mobile.');
                         response.status=200;
-                        response.message = 'alerts not found for mobile:'+ req.body.mobile;
+                        response.message = 'alerts not found for mobile:'+ req.body.mobile + ' and country code: ' + req.body.countrycode;
                         response.messagecode = 4003;
                         response.Alert = null;
                         response.token=null;

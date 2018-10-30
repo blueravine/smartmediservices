@@ -16,7 +16,7 @@ module.exports = {
 
           req.token = token;
           console.log('token: ' + token);
-          console.log('mobile: ' + req.body.mobile);
+          console.log('mobile: ' + req.body.mobile + ' country code: ' + req.body.countrycode);
           next();
       }
       else{

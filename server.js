@@ -63,7 +63,7 @@ app.use(smartjwt.getToken.unless({
         }));
 
 const verifyToken = function (req, res, next) {
-        signOptions.subject=req.body.mobile;
+        signOptions.subject=req.body.countrycode + '-' + req.body.mobile;
         signOptions.audience=req.body.jwtaudience;
 
         if(smartjwt.verify(req.token, signOptions)){
@@ -110,8 +110,22 @@ app.use(function (err, req, res, next) {
 console.error(err.stack);
 
 techerrorres.status=500;
-techerrorres.message = 'Internal Server Error!';
-techerrorres.messagecode = 5001;
+    if(err.message.toLowerCase().includes('user already exists')){
+        techerrorres.message = err.message;
+        techerrorres.messagecode = 1010;
+    }
+    else if(err.message.toLowerCase().includes('username already exists')){
+        techerrorres.message = err.message;
+        techerrorres.messagecode = 1011;
+    }
+    else if(err.message.toLowerCase().includes('test result already exists')){
+        techerrorres.message = err.message;
+        techerrorres.messagecode = 1011;
+    }
+    else {
+        techerrorres.message = 'Internal Server Error! ' + err.message;
+        techerrorres.messagecode = 5001;
+    }
 
 res.status(techerrorres.status).send(techerrorres);
 });

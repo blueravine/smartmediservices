@@ -18,4 +18,20 @@ var testresultSchema = new Schema({
     createddate: {type: Date, default: Date.now}
 });
 
-module.exports = mongoose.model('TestResult', testresultSchema);
+testresultSchema.pre('save', function (next) {
+    var self = this;
+    TestResult.find({mobile : self.mobile,
+                     countrycode: self.countrycode,
+                     testdate:self.testdate,
+                     testname: self.testname}, function (err, testresultdoc) {
+        if (!testresultdoc.length){
+            next();
+        }else{                
+            console.log('test result exists: ',self.countrycode + '-' + self.mobile + '-' + self.testdate + '-' + self.testname);
+            next(new Error("Test Result Already exists for: " + self.textname + ' on ' + self.testdate));
+        }
+    });
+}) ;
+
+var TestResult = mongoose.model('TestResult', testresultSchema);
+module.exports = TestResult;

@@ -60,7 +60,7 @@ exports.user_create = function (req, res, next) {
 exports.user_authenticate = function (req, res, next) {
     console.log('authenticating user');
 
-    User.findOne({"mobile": req.body.mobile}, function (err, user) {
+    User.findOne({"mobile": req.body.mobile, "countrycode": req.body.countrycode}, function (err, user) {
         if (err) {
             return next(err);
         }
@@ -70,9 +70,9 @@ exports.user_authenticate = function (req, res, next) {
 
             if(bcrypt.compareSync(req.body.password, user.password_hash)){
                 let {password_hash, ...withoutpwdhash} = user.toObject();
-                signOptions.subject=req.body.mobile;
+                signOptions.subject=req.body.countrycode + '-' + req.body.mobile;
                 signOptions.audience=req.body.jwtaudience;
-                let token = smartjwt.sign({mobile: req.body.mobile},signOptions);
+                let token = smartjwt.sign({mobile: req.body.mobile, countrycode: req.body.countrycode},signOptions);
                 console.log('user authenticated');
                 response.status=200;
                 response.message = 'user authenticated';
@@ -144,7 +144,7 @@ exports.user_details = function (req, res, next) {
 exports.user_details_bymobile = function (req, res, next) {
     console.log('retrieving user by mobile');
 
-                User.findOne({"mobile": req.body.mobile}, function (err, user) {
+                User.findOne({"mobile": req.body.mobile, "countrycode": req.body.countrycode}, function (err, user) {
                     if (err) {
                         console.log('error while finding user by mobile.');
                         return next(err);
@@ -173,7 +173,7 @@ exports.user_details_bymobile = function (req, res, next) {
 exports.user_update_bymobile = function (req, res, next) {
     console.log('updating user by mobile');
     
-    User.findOneAndUpdate({"mobile": req.body.mobile}, {$set: req.body}, function (err, user) {
+    User.findOneAndUpdate({"mobile": req.body.mobile, "countrycode": req.body.countrycode}, {$set: req.body}, function (err, user) {
         if (err) {
             return next(err);
         }
