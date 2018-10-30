@@ -32,6 +32,7 @@ req.body.forEach(element => {
     });
     console.log('alerts  created');
     response.message = 'alerts  registered';
+    response.messagecode = 4001;
     response.status=200;
     response.Alert = null;
     response.token = null;
@@ -51,13 +52,15 @@ exports.alerts_bymobile = function (req, res, next) {
                         console.log('found alerts by mobile.');
                     response.status=200;
                     response.message = 'alerts found';
+                    response.messagecode = 4002;
                     response.Alert = alert;
                     response.token=null;
                     }
                     else {
                         console.log('alerts not found by mobile.');
                         response.status=200;
-                        response.message = 'alerts not found for mobile:'+req.body.mobile;
+                        response.message = 'alerts not found for mobile:'+ req.body.mobile;
+                        response.messagecode = 4003;
                         response.Alert = null;
                         response.token=null;
                     }

@@ -15,6 +15,7 @@ exports.test = function (req, res) {
     console.log('Hello there!');
     response.status=200;
     response.message = 'Hello!';
+    response.messagecode = 1001;
     response.User=null;
     response.token=null;
     res.status(response.status).send(response);
@@ -46,6 +47,7 @@ exports.user_create = function (req, res, next) {
         }
         console.log('user created');
         response.message = 'user created';
+        response.messagecode = 1002;
         let {password_hash, ...withoutpwdhash} = user.toObject();
         response.status=200;
         response.User = withoutpwdhash;
@@ -74,6 +76,7 @@ exports.user_authenticate = function (req, res, next) {
                 console.log('user authenticated');
                 response.status=200;
                 response.message = 'user authenticated';
+                response.messagecode = 1003;
                 response.User = withoutpwdhash;
                 response.token = token;
             }
@@ -81,6 +84,7 @@ exports.user_authenticate = function (req, res, next) {
                 console.log('password invalid');
                 response.status=200;
                 response.message = 'user authentication failed';
+                response.messagecode = 1004;
                 response.User = req.body.mobile;
                 response.token = null;
             }
@@ -89,6 +93,7 @@ exports.user_authenticate = function (req, res, next) {
         else {
             response.status=200;
             response.message = 'user not found';
+            response.messagecode = 1005;
             response.User = req.body.mobile;
             response.token = null;
         }
@@ -101,6 +106,7 @@ exports.user_verify_token = function (req, res, next) {
                 console.log('user token is valid.');
                 response.status=200;
                 response.message = 'jwt token valid';
+                response.messagecode = 1006;
                 response.User = req.body.mobile;
                 response.token = req.token;
         
@@ -119,6 +125,7 @@ exports.user_details = function (req, res, next) {
         if(user) {
             response.status=200;
             response.message = 'user found';
+            response.messagecode = 1007;
             let {password_hash, ...withoutpwdhash} = user.toObject();
             response.User = withoutpwdhash;
             response.token=null;
@@ -126,6 +133,7 @@ exports.user_details = function (req, res, next) {
         else {
             response.status=200;
             response.message = 'user not found';
+            response.messagecode = 1005;
             response.User = null;
             response.token=null;
         }
@@ -146,6 +154,7 @@ exports.user_details_bymobile = function (req, res, next) {
                         console.log('found user by mobile.');
                     response.status=200;
                     response.message = 'user found';
+                    response.messagecode = 1007;
                     response.User = user;
                     response.token=null;
                     }
@@ -153,6 +162,7 @@ exports.user_details_bymobile = function (req, res, next) {
                         console.log('user not found by mobile.');
                         response.status=200;
                         response.message = 'user not found';
+                        response.messagecode = 1005;
                         response.User = null;
                         response.token=null;
                     }
@@ -170,12 +180,14 @@ exports.user_update_bymobile = function (req, res, next) {
         if(user) {
             response.status=200;
             response.message = 'user updated';
+            response.messagecode = 1008;
             response.User = user;
             response.token=null;
             }
             else {
                 response.status=200;
                 response.message = 'user not found';
+                response.messagecode = 1005;
                 response.User = null;
                 response.token=null;
             }        

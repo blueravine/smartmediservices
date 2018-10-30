@@ -6,6 +6,7 @@ exports.test = function (req, res) {
     console.log('Hello there!');
     response.status=200;
     response.message = 'Hello!';
+    response.messagecode = 2001;
     response.TestResult=null;
     response.token=null;
     res.status(response.status).send(response);
@@ -61,6 +62,7 @@ req.body.forEach((element) => {
             console.log('test not found by name.');
             response.status=200;
             response.message = 'testname not found: ' + element.testname + '.';
+            response.messagecode = 2002;
             response.TestResult = null;
             response.token=null;
             }
@@ -69,6 +71,7 @@ req.body.forEach((element) => {
     });
     console.log('test results created');
     response.message = 'test results registered';
+    response.messagecode = 2003;
     response.status=200;
     response.TestResult = null;
     response.token = null;
@@ -88,6 +91,7 @@ exports.testresults_bymobile = function (req, res, next) {
                         console.log('found test results by mobile.');
                     response.status=200;
                     response.message = 'test results found';
+                    response.messagecode = 2004;
                     response.TestResult = testresult;
                     response.token=null;
                     }
@@ -95,6 +99,7 @@ exports.testresults_bymobile = function (req, res, next) {
                         console.log('test results not found by mobile.');
                         response.status=200;
                         response.message = 'test results not found';
+                        response.messagecode = 2005;
                         response.TestResult = null;
                         response.token=null;
                     }

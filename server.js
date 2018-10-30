@@ -1,7 +1,8 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const config = require('./config.json');
-const response = require('./src/schemas/api.response.testresult');
+const response = require('./src/schemas/api.response.user');
+const techerrorres = require('./src/schemas/api.response.techerror');
 const smartjwt = require('./utils/jwt');
 
 //Import routes for the user
@@ -40,6 +41,17 @@ let signOptions = {
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: false}));
 
+// logging middleware
+var num = 0;
+app.use(function (req, res, next) {
+    var ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+    var method = req.method;
+    var url = req.url;
+
+    console.log((++num) + ". IP " + ip + " " + method + " " + url);
+    next();
+});
+
 smartjwt.getToken.unless = require('express-unless');
     
 app.use(smartjwt.getToken.unless({
@@ -60,6 +72,7 @@ const verifyToken = function (req, res, next) {
         else {
         response.status=403;
         response.message = 'Token not valid!';
+        response.messagecode = 1009;
         response.User = req.body.mobile;
         response.token = req.token;
     
@@ -86,26 +99,24 @@ app.use('/alert', alert);
 app.use(function (req, res, next) {
     console.log("Cannot find RESTful resource!");
 
-    response.status=404;
-    response.message = 'Cannot find RESTful resource!';
-    response.TestResult=null;
-    response.token=null;
+    techerrorres.status=404;
+    techerrorres.message = 'Cannot find RESTful resource!';
+    techerrorres.messagecode = 5000;
 
-    res.status(response.status).send(response);
+    res.status(techerrorres.status).send(techerrorres);
   });
 
 app.use(function (err, req, res, next) {
 console.error(err.stack);
 
-response.status=500;
-response.message = 'Internal Server Error!';
-response.TestResult=null;
-response.token=null;
+techerrorres.status=500;
+techerrorres.message = 'Internal Server Error!';
+techerrorres.messagecode = 5001;
 
-res.status(response.status).send(response);
+res.status(techerrorres.status).send(techerrorres);
 });
 
-const port = process.env.PORT || config.PORT || 3056;
+const port = process.env.PORT || config.PORT || 3057;
 
 app.listen(port, () => {
     console.log('Server is running on the port' + port);

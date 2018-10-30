@@ -1,5 +1,6 @@
 const jwt   = require('jsonwebtoken');
 const config = require('../config.json');
+const techerrorres = require('./src/schemas/api.response.techerror');
 
 let secret = config.secret;
 let tokenexpiry = config.jwtexpiresin?config.jwtexpiresin:"15d";
@@ -21,10 +22,9 @@ module.exports = {
       else{
         console.log('error while getting token.');
 
-        response.status=403;
-        response.message = 'Error while getting token!';
-        response.User=null;
-        response.token=null;
+        techerrorres.status=403;
+        techerrorres.message = 'Error while getting token!';
+        techerrorres.messagecode = 5002;
     
         res.status(response.status).send(response);
       }

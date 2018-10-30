@@ -32,6 +32,7 @@ req.body.forEach(element => {
     });
     console.log('tests  created');
     response.message = 'tests  registered';
+    response.messagecode = 3001;
     response.status=200;
     response.Test = null;
     response.token = null;
@@ -56,6 +57,7 @@ exports.tests_byname = function (req, res, next) {
                         console.log('found tests by name.');
                     response.status=200;
                     response.message = 'tests found';
+                    response.messagecode = 3002;
                     response.Test = test;
                     response.token=null;
                     }
@@ -63,6 +65,7 @@ exports.tests_byname = function (req, res, next) {
                         console.log('tests not found by name.');
                         response.status=200;
                         response.message = 'tests not found';
+                        response.messagecode = 3003;
                         response.Test = null;
                         response.token=null;
                     }
