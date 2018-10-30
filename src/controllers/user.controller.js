@@ -48,9 +48,9 @@ exports.user_create = function (req, res, next) {
         console.log('user created');
         response.message = 'user created';
         response.messagecode = 1002;
-        let {password_hash, ...withoutpwdhash} = user.toObject();
+//        let {password_hash, ...withoutpwdhash} = user.toObject();
         response.status=200;
-        response.User = withoutpwdhash;
+        response.User = user;
         response.token = null;
         res.status(response.status).send(response);
     })
