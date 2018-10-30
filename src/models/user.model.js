@@ -7,6 +7,7 @@ var userSchema = new Schema({
     countrycode: {type: Number, required: false},
     name: {type: String, required: false},
     username: {type: String, required: false},
+    password_hash: {type: String, required: true},
     email: {type: String, required: false},
     age: {type: Number, required: false},
     gender:{type: String, required: false},
