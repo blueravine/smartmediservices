@@ -144,7 +144,7 @@ exports.user_details = function (req, res, next) {
 exports.user_details_bymobile = function (req, res, next) {
     console.log('retrieving user by mobile');
 
-                User.findOne({"mobile": req.headers.mobile, "countrycode": req.headers.countrycode}, function (err, user) {
+                User.findOne({"mobile": req.body.mobile, "countrycode": req.body.countrycode}, function (err, user) {
                     if (err) {
                         console.log('error while finding user by mobile.');
                         return next(err);
