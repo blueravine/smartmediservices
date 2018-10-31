@@ -14,13 +14,14 @@ req.body.forEach(element => {
             countrycode: element.countrycode,
             startdate: element.startdate,
             enddate: element.enddate,
-            frequency: element.frequency,
+            medicinename: element.medicinename,
+            medfrequency: element.medfrequency,
             repeat1: element.repeat1,
             repeat2: element.repeat2,
             repeat3:element.repeat3,
             repeat4:element.repeat4,
             weekday:element.weekday,
-            medicationdate: element.medicationdate,
+            meddate: element.meddate,
             Notes: element.Notes
         });
 

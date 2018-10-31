@@ -7,13 +7,14 @@ var alertSchema = new Schema({
     countrycode: {type: Number, required: false},
     startdate: {type: Number, required: false},
     enddate: {type: Number, required: false},
-    frequency: {type: String, required: false},
+    medicinename: {type: String, required: false},
+    medfrequency: {type: String, required: false},
     repeat1: {type: String, required: false},
     repeat2: {type: String, required: false},
     repeat3: {type: String, required: false},
     repeat4: {type: String, required: false},
     weekday: {type: String, required: false},
-    medicationdate:{type: Number, required: false},
+    meddate:{type: Number, required: false},
     Notes:{type:String, required:false},
     createddate: {type: Date, default: Date.now}
 });
