@@ -4,7 +4,7 @@ const Schema = mongoose.Schema;
 var userSchema = new Schema({
     id: {type: Number, required: false},
     mobile: {type: Number, required: false},
-    countrycode: {type: Number, required: false},
+    countrycode: {type: String, required: false},
     name: {type: String, required: false},
     username: {type: String, required: false},
     password_hash: {type: String, required: true},

@@ -11,6 +11,7 @@ req.body.forEach(element => {
     
         let alert = new Alert({
             mobile: element.mobile,
+            countrycode: element.countrycode,
             startdate: element.startdate,
             enddate: element.enddate,
             frequency: element.frequency,
@@ -40,9 +41,9 @@ req.body.forEach(element => {
 };
 
 exports.alerts_bymobile = function (req, res, next) {
-    console.log('retrieving alerts by mobile' + JSON.stringify(req.body));
+    console.log('retrieving alerts by mobile ' + req.headers.mobile + ' countrycode: ' + req.headers.countrycode);
 
-                Alert.findOne({"mobile": req.body.mobile, "countrycode": req.body.countrycode}, function (err, alert) {
+                Alert.findOne({"mobile": req.headers.mobile, "countrycode": req.headers.countrycode}, function (err, alert) {
                     if (err) {
                         console.log('error while finding alerts by mobile.');
                         return next(err);
@@ -59,11 +60,41 @@ exports.alerts_bymobile = function (req, res, next) {
                     else {
                         console.log('alerts not found by mobile.');
                         response.status=200;
-                        response.message = 'alerts not found for mobile:'+ req.body.mobile + ' and country code: ' + req.body.countrycode;
+                        response.message = 'alerts not found for mobile:'+ req.headers.mobile + ' and country code: ' + req.headers.countrycode;
                         response.messagecode = 4003;
                         response.Alert = null;
                         response.token=null;
                     }
                     res.status(response.status).send(response);
                 })
+};
+
+exports.alert_update_bymobile = function (req, res, next) {
+    console.log('updating alert by mobile. countrycode: ' + req.headers.countrycode + ' mobile: ' + req.headers.mobile);
+    
+    Alert.findOne({"mobile": req.headers.mobile, "countrycode": req.headers.countrycode},
+                    {$set: req.body},
+                    {new: true},
+         function (err, alert) {
+                if (err) {
+                    console.log(err);
+                    return next(err);
+                }
+                if(alert) {
+                    response.status=200;
+                    response.message = 'alert updated';
+                    response.messagecode = 4004;
+                    response.Alert = alert;
+                    response.token=null;
+                    }
+                    else {
+                        response.status=200;
+                        response.message = 'alert not found';
+                        response.messagecode = 4005;
+                        response.Alert = null;
+                        response.token=null;
+                    }        
+
+                    res.status(response.status).send(response);
+        })
 };

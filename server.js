@@ -56,9 +56,13 @@ smartjwt.getToken.unless = require('express-unless');
     
 app.use(smartjwt.getToken.unless({
             path: [
+                '/user/test',
                 '/user/register',
                 '/user/login',
-                '/user/mobile'
+                '/user/mobile',
+                '/testresult/test',
+                '/test/register',
+                '/test/name'
             ]
         }));
 
@@ -83,9 +87,13 @@ const verifyToken = function (req, res, next) {
 verifyToken.unless = require('express-unless');
 app.use(verifyToken.unless({
         path: [
+            '/user/test',
             '/user/register',
             '/user/login',
-            '/user/mobile'
+            '/user/mobile',
+            '/testresult/test',
+            '/test/register',
+            '/test/name'
         ]
     })
 );

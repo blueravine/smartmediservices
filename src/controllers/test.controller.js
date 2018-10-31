@@ -72,3 +72,38 @@ exports.tests_byname = function (req, res, next) {
                     res.status(response.status).send(response);
                 })
 };
+
+exports.test_update_byname = function (req, res, next) {
+    console.log('updating test by name. countrycode: ' + req.body.countrycode + ' testname: ' + req.body.testname);
+    
+    Test.findOneAndUpdate({"testname": req.body.name,
+                            "testagemin": {$lte: req.body.age},
+                            "testagemax": {$gte: req.body.age},
+                            $and:[{$or:[{"testgender": req.body.gender},{"testgender":"UNISEX"}]},
+                            {$or: [{"countrycode": req.body.countrycode},{"countrycode": 0}]}]
+                          },
+                          {$set: req.body},
+                          {new: true},
+        function (err, test) {
+                if (err) {
+                    console.log(err);
+                    return next(err);
+                }
+                if(test) {
+                    response.status=200;
+                    response.message = 'test updated';
+                    response.messagecode = 3004;
+                    response.Test = test;
+                    response.token=null;
+                    }
+                    else {
+                        response.status=200;
+                        response.message = 'test not found';
+                        response.messagecode = 3005;
+                        response.Test = null;
+                        response.token=null;
+                    }        
+
+                    res.status(response.status).send(response);
+        })
+};

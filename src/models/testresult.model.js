@@ -4,7 +4,7 @@ const Schema = mongoose.Schema;
 var testresultSchema = new Schema({
     id: {type: Number, required: false},
     mobile: {type: Number, required: false},
-    countrycode: {type: Number, required: false},
+    countrycode: {type: String, required: false},
     testdate: {type: Number, required: false},
     ageontest: {type: Number, required: false},
     testname: {type: String, required: false},
