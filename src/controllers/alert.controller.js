@@ -44,7 +44,7 @@ req.body.forEach(element => {
 exports.alerts_bymobile = function (req, res, next) {
     console.log('retrieving alerts by mobile ' + req.headers.mobile + ' countrycode: ' + req.headers.countrycode);
 
-                Alert.findOne({"mobile": req.headers.mobile, "countrycode": req.headers.countrycode}, function (err, alert) {
+                Alert.find({"mobile": req.headers.mobile, "countrycode": req.headers.countrycode}, function (err, alert) {
                     if (err) {
                         console.log('error while finding alerts by mobile.');
                         return next(err);
