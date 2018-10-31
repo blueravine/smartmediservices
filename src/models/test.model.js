@@ -3,7 +3,7 @@ const Schema = mongoose.Schema;
 
 var testSchema = new Schema({
     id: {type: Number, required: false},    
-    countrycode: {type: String, required: false},
+    countrycode: {type: Number, required: false},
     testname: {type: String, required: false},
     testunit: {type: String, required: false},
     testagemin: {type: Number, required: false},

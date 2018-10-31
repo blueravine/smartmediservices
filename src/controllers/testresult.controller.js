@@ -99,7 +99,7 @@ req.body.forEach((element) => {
 exports.testresults_bymobile = function (req, res, next) {
     console.log('retrieving test results by mobile');
 
-                TestResult.find({"mobile": req.body.mobile, "countrycode": req.body.countrycode}, function (err, testresult) {
+                TestResult.find({"mobile": req.headers.mobile, "countrycode": req.headers.countrycode}, function (err, testresult) {
                     if (err) {
                         console.log('error while finding test results by mobile.');
                         return next(err);

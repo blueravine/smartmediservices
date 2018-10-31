@@ -107,7 +107,7 @@ exports.user_verify_token = function (req, res, next) {
                 response.status=200;
                 response.message = 'jwt token valid';
                 response.messagecode = 1006;
-                response.User = req.body.mobile;
+                response.User = req.headers.mobile;
                 response.token = req.token;
         
         res.status(response.status).send(response);
@@ -144,7 +144,7 @@ exports.user_details = function (req, res, next) {
 exports.user_details_bymobile = function (req, res, next) {
     console.log('retrieving user by mobile');
 
-                User.findOne({"mobile": req.body.mobile, "countrycode": req.body.countrycode}, function (err, user) {
+                User.findOne({"mobile": req.headers.mobile, "countrycode": req.headers.countrycode}, function (err, user) {
                     if (err) {
                         console.log('error while finding user by mobile.');
                         return next(err);
@@ -173,7 +173,7 @@ exports.user_details_bymobile = function (req, res, next) {
 exports.user_update_bymobile = function (req, res, next) {
     console.log('updating user by mobile');
     
-    User.findOneAndUpdate({"mobile": req.body.mobile, "countrycode": req.body.countrycode},
+    User.findOneAndUpdate({"mobile": req.headers.mobile, "countrycode": req.headers.countrycode},
                           {$set: req.body},
                           {new: true},
                           function (err, user) {
