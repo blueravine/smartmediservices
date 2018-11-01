@@ -2,6 +2,7 @@ const User = require('../models/user.model');
 const Test = require('../models/test.model');
 const TestResult = require('../models/testresult.model');
 const response = require('../schemas/api.response.testresult');
+const globalparams = require('../../globalparams.json');
 
 exports.test = function (req, res) {
     console.log('Hello there!');
@@ -44,7 +45,7 @@ req.body.forEach((element) => {
 
                     let testresult = new TestResult({
                         testdate: element.testdate,
-                        ageontest: user.age,
+                        ageontest: element.age ? element.age : user.age,
                         testname: element.testname,
                         mobile: element.mobile,
                         countrycode: element.countrycode,
@@ -122,7 +123,8 @@ exports.testresults_bymobile = function (req, res, next) {
                         response.token=null;
                     }
                     res.status(response.status).send(response);
-                })
+                }).sort({testdate:-1})
+                .limit(globalparams.testresultslimit);
 };
 
 exports.testresults_update_bymobile = function (req, res, next) {
