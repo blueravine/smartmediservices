@@ -9,6 +9,9 @@ router.post('/register', test_controller.test_create);
 //get test  by name
 router.post('/name', test_controller.tests_byname);
 
+//get all tests
+router.post('/', test_controller.tests_all);
+
 //update test by name
 router.post('/update/name', test_controller.test_update_byname);
 

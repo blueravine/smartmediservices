@@ -74,6 +74,7 @@ req.body.forEach((element) => {
             
                 }
                 else {
+                    trsuccessflag = false;
                     console.log('test not found by name.');
                     response.status=200;
                     response.message = 'testname not found: ' + element.testname + '.';
@@ -85,6 +86,7 @@ req.body.forEach((element) => {
                 });
       }
       else {
+        trsuccessflag = false;
         console.log('user not found by mobile number.');
         response.status=200;
         response.message = 'user not found: ' + element.countrycode + '-' + element.mobile;

@@ -62,7 +62,8 @@ app.use(smartjwt.getToken.unless({
                 '/user/mobile',
                 '/testresult/test',
                 '/test/register',
-                '/test/name'
+                '/test/name',
+                '/test'
             ]
         }));
 
@@ -93,7 +94,8 @@ app.use(verifyToken.unless({
             '/user/mobile',
             '/testresult/test',
             '/test/register',
-            '/test/name'
+            '/test/name',
+            '/test'
         ]
     })
 );
