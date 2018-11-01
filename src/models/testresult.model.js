@@ -28,7 +28,7 @@ testresultSchema.pre('save', function (next) {
             next();
         }else{                
             console.log('test result exists: ',self.countrycode + '-' + self.mobile + '-' + self.testdate + '-' + self.testname);
-            next(new Error("Test Result Already exists for: " + self.textname + ' on ' + self.testdate));
+            next(new Error("Test Result Already exists for: " + self.testname + ' on ' + self.testdate));
         }
     });
 }) ;

@@ -19,4 +19,18 @@ var alertSchema = new Schema({
     createddate: {type: Date, default: Date.now}
 });
 
-module.exports = mongoose.model('Alert', alertSchema);
+alertSchema.pre('save', function (next) {
+    var self = this;
+    Alert.find({mobile: self.mobile, countrycode: self.countrycode, medicinename: self.medicinename},
+         function (err, alertdoc) {
+        if (!alertdoc.length){
+            next();
+        }else{                
+            console.log('Alert exists: ',self.countrycode + '-' + self.mobile + '-' + self.medicinename);
+            next(new Error("Alert Already exists for: " + self.countrycode + '-' + self.mobile + ' and ' + self.medicinename));
+        }
+    });
+}) ;
+
+var Alert = mongoose.model('Alert', alertSchema);
+module.exports = Alert;

@@ -6,6 +6,8 @@ exports.register = function (req, res, next) {
 };
 
 exports.alert_create = function (req, res, next) {
+let successflag = true;
+
     console.log('creating alert ' + JSON.stringify(req.body));
 req.body.forEach(element => {
     
@@ -27,11 +29,14 @@ req.body.forEach(element => {
 
         alert.save(function (err) {
             if (err) {
+                successflag = false;
                 console.log('error while creating alert ' + err);
                 return next(err);
             }
         });
     });
+
+    if(!successflag){
     console.log('alerts  created');
     response.message = 'alerts  registered';
     response.messagecode = 4001;
@@ -39,6 +44,7 @@ req.body.forEach(element => {
     response.Alert = null;
     response.token = null;
     res.status(response.status).send(response);
+    }
 };
 
 exports.alerts_bymobile = function (req, res, next) {

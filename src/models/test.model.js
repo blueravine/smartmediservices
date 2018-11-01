@@ -17,4 +17,18 @@ var testSchema = new Schema({
     createddate: {type: Date, default: Date.now}
 });
 
-module.exports = mongoose.model('Test', testSchema);
+testSchema.pre('save', function (next) {
+    var self = this;
+    Test.find({countrycode: self.countrycode,
+                     testname: self.testname}, function (err, testdoc) {
+        if (!testdoc.length){
+            next();
+        }else{                
+            console.log('test exists: ',self.countrycode + '-' + self.testname);
+            next(new Error("Test Already exists for: " + self.countrycode + ' and ' + self.testname));
+        }
+    });
+}) ;
+
+var Test = mongoose.model('Test', testSchema);
+module.exports = Test;

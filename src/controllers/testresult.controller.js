@@ -20,6 +20,8 @@ exports.register = function (req, res, next) {
 };
 
 exports.testresult_create = function (req, res, next) {
+let successflag = true;
+
     console.log('finding test' + JSON.stringify(req.body.normal));
 req.body.forEach((element) => {
     User.findOne({"mobile": element.mobile, "countrycode": element.countrycode}, function(err, user) {
@@ -45,7 +47,7 @@ req.body.forEach((element) => {
 
                     let testresult = new TestResult({
                         testdate: element.testdate,
-                        ageontest: element.age ? element.age : user.age,
+                        ageontest: element.age? element.age : user.age,
                         testname: element.testname,
                         mobile: element.mobile,
                         countrycode: element.countrycode,
@@ -61,6 +63,7 @@ req.body.forEach((element) => {
             
                     testresult.save(function (err) {
                         if (err) {
+                            successflag = false;
                             console.log('error while creating test result' + err);
                             return next(err);
                         }
@@ -88,6 +91,8 @@ req.body.forEach((element) => {
         }
       });
     });
+
+    if(!successflag){
     console.log('test results created');
     response.message = 'test results registered';
     response.messagecode = 2003;
@@ -95,6 +100,10 @@ req.body.forEach((element) => {
     response.TestResult = null;
     response.token = null;
     res.status(response.status).send(response);
+    }
+    else{
+        
+    }
 };
 
 exports.testresults_bymobile = function (req, res, next) {
@@ -123,8 +132,7 @@ exports.testresults_bymobile = function (req, res, next) {
                         response.token=null;
                     }
                     res.status(response.status).send(response);
-                }).sort({testdate:-1})
-                .limit(globalparams.testresultslimit);
+                });
 };
 
 exports.testresults_update_bymobile = function (req, res, next) {

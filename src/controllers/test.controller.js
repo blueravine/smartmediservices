@@ -6,6 +6,8 @@ exports.register = function (req, res, next) {
 };
 
 exports.test_create = function (req, res, next) {
+let successflag = true;
+
     console.log('creating test ' + JSON.stringify(req.body));
 req.body.forEach(element => {
     
@@ -25,11 +27,14 @@ req.body.forEach(element => {
 
         test.save(function (err) {
             if (err) {
+                successflag = false;
                 console.log('error while creating test ' + err);
                 return next(err);
             }
         });
     });
+
+    if(!successflag){
     console.log('tests  created');
     response.message = 'tests  registered';
     response.messagecode = 3001;
@@ -37,6 +42,7 @@ req.body.forEach(element => {
     response.Test = null;
     response.token = null;
     res.status(response.status).send(response);
+    }
 };
 
 exports.tests_byname = function (req, res, next) {
