@@ -34,7 +34,7 @@ req.body.forEach(element => {
         });
     });
 
-    if(!successflag){
+    if(successflag){
     console.log('tests  created');
     response.message = 'tests  registered';
     response.messagecode = 3001;

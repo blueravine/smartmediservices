@@ -36,7 +36,7 @@ req.body.forEach(element => {
         });
     });
 
-    if(!successflag){
+    if(successflag){
     console.log('alerts  created');
     response.message = 'alerts  registered';
     response.messagecode = 4001;

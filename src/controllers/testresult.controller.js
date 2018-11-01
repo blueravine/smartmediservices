@@ -92,7 +92,7 @@ req.body.forEach((element) => {
       });
     });
 
-    if(!successflag){
+    if(successflag){
     console.log('test results created');
     response.message = 'test results registered';
     response.messagecode = 2003;
@@ -102,7 +102,7 @@ req.body.forEach((element) => {
     res.status(response.status).send(response);
     }
     else{
-        
+
     }
 };
 
