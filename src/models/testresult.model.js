@@ -13,6 +13,7 @@ var testresultSchema = new Schema({
     normalmax:{type: Number, required: false},
     normalcomparator:{type: String, required: false},
     result: {type: String, required: false},
+    notes: {type: String, required: false},
     categoryid: {type: Number, required: false},
     category: {type: String, required: false},
     createddate: {type: Date, default: Date.now}

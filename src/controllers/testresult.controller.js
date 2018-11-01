@@ -20,7 +20,7 @@ exports.register = function (req, res, next) {
 };
 
 exports.testresult_create = function (req, res, next) {
-let successflag = true;
+let trsuccessflag = true;
 
     console.log('finding test' + JSON.stringify(req.body.normal));
 req.body.forEach((element) => {
@@ -56,14 +56,17 @@ req.body.forEach((element) => {
                         normalmin:test.normalmin,
                         normalmax:test.normalmax,
                         normalcomparator:test.normalcomparator,
-                        result: element.result,
-                        categoryid: element.categoryid,
-                        category: element.category
+                        result: ((element.value >= test.normalmin) && (element.value <= test.normalmax)) ? 'normal'
+                                     : (element.value > test.normalmax) ? 'high'
+                                     : (element.value < test.normalmin) ? 'low' : 'undetermined',
+                        categoryid: test.categoryid,
+                        category: test.category,
+                        notes: element.notes
                     });
             
                     testresult.save(function (err) {
                         if (err) {
-                            successflag = false;
+                            trsuccessflag = false;
                             console.log('error while creating test result' + err);
                             return next(err);
                         }
@@ -92,7 +95,7 @@ req.body.forEach((element) => {
       });
     });
 
-    if(successflag){
+    if(trsuccessflag){
     console.log('test results created');
     response.message = 'test results registered';
     response.messagecode = 2003;
@@ -100,9 +103,6 @@ req.body.forEach((element) => {
     response.TestResult = null;
     response.token = null;
     res.status(response.status).send(response);
-    }
-    else{
-
     }
 };
 
