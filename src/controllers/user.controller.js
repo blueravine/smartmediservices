@@ -181,6 +181,7 @@ exports.user_update_bymobile = function (req, res, next) {
             return next(err);
         }
         if(user) {
+            console.log('user updated: ' + user);
             response.status=200;
             response.message = 'user updated';
             response.messagecode = 1008;
