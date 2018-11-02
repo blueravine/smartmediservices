@@ -22,6 +22,6 @@ router.get('/:id', user_controller.user_details);
 router.post('/mobile', user_controller.user_details_bymobile);
 
 //update user by field
-router.put('/mobile', user_controller.user_update_bymobile);
+router.post('/update/mobile', user_controller.user_update_bymobile);
 
 module.exports = router;
