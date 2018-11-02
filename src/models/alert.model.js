@@ -15,7 +15,7 @@ var alertSchema = new Schema({
     repeat4: {type: String, required: false},
     weekday: {type: String, required: false},
     meddate:{type: Number, required: false},
-    Notes:{type:String, required:false},
+    notes:{type:String, required:false},
     createddate: {type: Date, default: Date.now}
 });
 

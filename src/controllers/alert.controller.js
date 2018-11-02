@@ -24,7 +24,7 @@ req.body.forEach(element => {
             repeat4:element.repeat4,
             weekday:element.weekday,
             meddate: element.meddate,
-            Notes: element.Notes
+            notes: element.notes
         });
 
         alert.save(function (err) {
