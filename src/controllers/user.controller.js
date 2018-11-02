@@ -174,7 +174,7 @@ exports.user_update_bymobile = function (req, res, next) {
     console.log('updating user by mobile');
     
     User.findOneAndUpdate({"mobile": req.headers.mobile, "countrycode": req.headers.countrycode},
-                          {$set: req.body},
+                          {$set: {"name":req.body.name,"age":req.body.age,"gender":req.body.gender,"email":req.body.email}},
                           {new: true},
                           function (err, user) {
         if (err) {
