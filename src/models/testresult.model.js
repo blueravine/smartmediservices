@@ -9,6 +9,7 @@ var testresultSchema = new Schema({
     ageontest: {type: Number, required: false},
     testname: {type: String, required: false},
     value: {type: Number, required: false},
+    testunit: {type: String, required: false},
     normalmin:{type: Number, required: false},
     normalmax:{type: Number, required: false},
     normalcomparator:{type: String, required: false},
