@@ -143,7 +143,7 @@ exports.testresults_update_bymobile = function (req, res, next) {
     
     TestResult.findOneAndUpdate({"mobile": req.body.mobile, "countrycode": req.body.countrycode,
                             "testdate": req.body.testdate, "testname": req.body.testname},
-                          {$set: {value: req.body.value}},
+                            {$set: req.body},
                           {new: true},
                            function (err, testresult) {
         if (err) {
