@@ -109,7 +109,8 @@ exports.alert_update_bymobile = function (req, res, next) {
 exports.alert_delete_bymobile = function (req, res, next) {
     console.log('deleting alert by mobile. countrycode: ' + req.headers.countrycode + ' mobile: ' + req.headers.mobile);
     
-    Alert.findOneAndDelete({"mobile": req.headers.mobile, "countrycode": req.headers.countrycode},
+    Alert.findOneAndDelete({"mobile": req.headers.mobile, "countrycode": req.headers.countrycode,
+"startdate":req.body.startdate, "enddate":req.body.enddate, "medicinename":req.body.medicinename, "medfrequency":req.body.medfrequency},
          function (err, alert) {
                 if (err) {
                     console.log(err);
