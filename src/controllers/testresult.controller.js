@@ -168,3 +168,33 @@ exports.testresults_update_bymobile = function (req, res, next) {
             res.status(response.status).send(response);
     })
 };
+
+exports.testresults_delete_bymobile = function (req, res, next) {
+    console.log('deleting test results by mobile ' + 'mobile ' + req.body.mobile + "countrycode " + req.body.countrycode +
+    "testdate " + req.body.testdate + "testname " + req.body.testname);
+    
+    TestResult.findOneAndDelete({"mobile": req.body.mobile, "countrycode": req.body.countrycode,
+                            "testdate": req.body.testdate, "testname": req.body.testname},
+                           function (err, testresult) {
+        if (err) {
+            console.log(err);
+            return next(err);
+        }
+        if(testresult) {
+            response.status=200;
+            response.message = 'test result deleted';
+            response.messagecode = 2007;
+            response.TestResult = testresult;
+            response.token=null;
+            }
+            else {
+                response.status=200;
+                response.message = 'test result not found';
+                response.messagecode = 2008;
+                response.TestResult = null;
+                response.token=null;
+            }        
+
+            res.status(response.status).send(response);
+    })
+};

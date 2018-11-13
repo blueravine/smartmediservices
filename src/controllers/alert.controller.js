@@ -79,7 +79,7 @@ exports.alerts_bymobile = function (req, res, next) {
 exports.alert_update_bymobile = function (req, res, next) {
     console.log('updating alert by mobile. countrycode: ' + req.headers.countrycode + ' mobile: ' + req.headers.mobile);
     
-    Alert.findOne({"mobile": req.headers.mobile, "countrycode": req.headers.countrycode},
+    Alert.findOneAndUpdate({"mobile": req.headers.mobile, "countrycode": req.headers.countrycode},
                     {$set: req.body},
                     {new: true},
          function (err, alert) {
@@ -98,6 +98,34 @@ exports.alert_update_bymobile = function (req, res, next) {
                         response.status=200;
                         response.message = 'alert not found';
                         response.messagecode = 4005;
+                        response.Alert = null;
+                        response.token=null;
+                    }        
+
+                    res.status(response.status).send(response);
+        })
+};
+
+exports.alert_delete_bymobile = function (req, res, next) {
+    console.log('deleting alert by mobile. countrycode: ' + req.headers.countrycode + ' mobile: ' + req.headers.mobile);
+    
+    Alert.findOneAndDelete({"mobile": req.headers.mobile, "countrycode": req.headers.countrycode},
+         function (err, alert) {
+                if (err) {
+                    console.log(err);
+                    return next(err);
+                }
+                if(alert) {
+                    response.status=200;
+                    response.message = 'alert deleted';
+                    response.messagecode = 4006;
+                    response.Alert = alert;
+                    response.token=null;
+                    }
+                    else {
+                        response.status=200;
+                        response.message = 'alert not found';
+                        response.messagecode = 4007;
                         response.Alert = null;
                         response.token=null;
                     }        

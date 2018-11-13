@@ -15,4 +15,7 @@ router.post('/', test_controller.tests_all);
 //update test by name
 router.post('/update/name', test_controller.test_update_byname);
 
+//delete test by name
+router.post('/delete/name', test_controller.test_delete_byname);
+
 module.exports = router;

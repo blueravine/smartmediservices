@@ -147,3 +147,36 @@ exports.test_update_byname = function (req, res, next) {
                     res.status(response.status).send(response);
         })
 };
+
+exports.test_delete_byname = function (req, res, next) {
+    console.log('deleting test by name. countrycode: ' + req.body.countrycode + ' testname: ' + req.body.testname);
+    
+    Test.findOneAndDelete({"testname": req.body.name,
+                            "testagemin": {$lte: req.body.age},
+                            "testagemax": {$gte: req.body.age},
+                            $and:[{$or:[{"testgender": req.body.gender},{"testgender":"UNISEX"}]},
+                            {$or: [{"countrycode": req.body.countrycode},{"countrycode": 0}]}]
+                          },
+        function (err, test) {
+                if (err) {
+                    console.log(err);
+                    return next(err);
+                }
+                if(test) {
+                    response.status=200;
+                    response.message = 'test deleted';
+                    response.messagecode = 3005;
+                    response.Test = test;
+                    response.token=null;
+                    }
+                    else {
+                        response.status=200;
+                        response.message = 'test not found';
+                        response.messagecode = 3006;
+                        response.Test = null;
+                        response.token=null;
+                    }        
+
+                    res.status(response.status).send(response);
+        })
+};

@@ -15,4 +15,7 @@ router.post('/mobile', testresult_controller.testresults_bymobile);
 //update test result by mobile
 router.post('/update/mobile', testresult_controller.testresults_update_bymobile);
 
+//delete test result by mobile
+router.post('/delete/mobile', testresult_controller.testresults_delete_bymobile);
+
 module.exports = router;
