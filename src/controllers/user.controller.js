@@ -57,6 +57,36 @@ exports.user_create = function (req, res, next) {
 
 };
 
+exports.user_update_password = function (req, res, next) {
+    console.log('updating password for user');
+
+        User.findOneAndUpdate({"mobile": req.headers.mobile, "countrycode": req.headers.countrycode},
+        {$set: {"password_hash":bcrypt.hashSync(req.body.password, 10)}},
+        {new: true},
+        function (err, user) {
+            if (err) {
+                return next(err); 
+            }
+            if(user) {
+                console.log('user updated: ' + user);
+                response.status=200;
+                response.message = 'user updated';
+                response.messagecode = 1009;
+                response.User = user;
+                response.token=null;
+            }
+            else {
+                response.status=200;
+                response.message = 'user not found';
+                response.messagecode = 1005;
+                response.User = null;
+                response.token=null;
+            }        
+
+            res.status(response.status).send(response);
+            }).select('-password_hash')
+};
+
 exports.user_authenticate = function (req, res, next) {
     console.log('authenticating user');
 

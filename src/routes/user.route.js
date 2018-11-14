@@ -9,6 +9,9 @@ router.get('/test', user_controller.test);
 //create user
 router.post('/register', user_controller.user_create);
 
+//update user password
+router.post('/update/password', user_controller.user_update_password);
+
 //create user
 router.post('/login', user_controller.user_authenticate);
 
