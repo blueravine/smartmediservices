@@ -60,7 +60,7 @@ exports.user_create = function (req, res, next) {
 exports.user_update_password = function (req, res, next) {
     console.log('updating password for user');
 
-        User.findOneAndUpdate({"mobile": req.headers.mobile, "countrycode": req.headers.countrycode},
+        User.findOneAndUpdate({"mobile": req.body.mobile, "countrycode": req.body.countrycode},
         {$set: {"password_hash":bcrypt.hashSync(req.body.password, 10)}},
         {new: true},
         function (err, user) {
