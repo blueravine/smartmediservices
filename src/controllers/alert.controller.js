@@ -79,7 +79,8 @@ exports.alerts_bymobile = function (req, res, next) {
 exports.alert_update_bymobile = function (req, res, next) {
     console.log('updating alert by mobile. countrycode: ' + req.headers.countrycode + ' mobile: ' + req.headers.mobile);
     
-    Alert.findOneAndUpdate({"mobile": req.headers.mobile, "countrycode": req.headers.countrycode},
+    Alert.findOneAndUpdate({"mobile": req.headers.mobile, "countrycode": req.headers.countrycode,
+    "startdate":req.body.startdate, "enddate":req.body.enddate, "medicinename":req.body.medicinename, "medfrequency":req.body.medfrequency},
                     {$set: req.body},
                     {new: true},
          function (err, alert) {
