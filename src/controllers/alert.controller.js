@@ -24,6 +24,7 @@ req.body.forEach(element => {
             repeat4:element.repeat4,
             weekday:element.weekday,
             meddate: element.meddate,
+            notificationid: element.notificationid,
             notes: element.notes
         });
 
