@@ -19,12 +19,15 @@ req.body.forEach(element => {
             medicinename: element.medicinename,
             medfrequency: element.medfrequency,
             repeat1: element.repeat1,
+            notificationid1: element.notificationid,
             repeat2: element.repeat2,
+            notificationid2: element.notificationid,
             repeat3:element.repeat3,
+            notificationid3: element.notificationid,
             repeat4:element.repeat4,
+            notificationid4: element.notificationid,
             weekday:element.weekday,
             meddate: element.meddate,
-            notificationid: element.notificationid,
             notes: element.notes
         });
 

@@ -10,13 +10,16 @@ var alertSchema = new Schema({
     medicinename: {type: String, required: false},
     medfrequency: {type: String, required: false},
     repeat1: {type: String, required: false},
+    notificationid1:{type: String, required: false},
     repeat2: {type: String, required: false},
+    notificationid2:{type: String, required: false},
     repeat3: {type: String, required: false},
+    notificationid3:{type: String, required: false},
     repeat4: {type: String, required: false},
+    notificationid4:{type: String, required: false},
     weekday: {type: String, required: false},
     meddate:{type: Number, required: false},
     notes:{type:String, required:false},
-    notificationid:{type: String, required: false},
     createddate: {type: Date, default: Date.now}
 });
 
