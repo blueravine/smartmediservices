@@ -16,7 +16,7 @@ var alertSchema = new Schema({
     weekday: {type: String, required: false},
     meddate:{type: Number, required: false},
     notes:{type:String, required:false},
-    notificationid:{type: Number, required: false},
+    notificationid:{type: String, required: false},
     createddate: {type: Date, default: Date.now}
 });
 
