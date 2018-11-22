@@ -4,7 +4,7 @@ const techerrorres = require('../src/schemas/api.response.techerror');
 
 let secret = config.secret;
 let tokenexpiry = config.jwtexpiresin?config.jwtexpiresin:"15d";
-let tokenalgorithm = config.jwtalgorithm?config.jwtalgorithm:"15d";
+let tokenalgorithm = config.jwtalgorithm?config.jwtalgorithm:"HS256";
 
 module.exports = {
   getToken: (req, res, next) => {
