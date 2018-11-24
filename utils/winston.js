@@ -17,16 +17,13 @@ var options = {
   }
 };
 
-console.log();
-
 const logFormat = printf( (logentry) => {
     return `${logentry.timestamp} [${logentry.label}] ${logentry.level}: ${logentry.message}`;
 });
 
 // instantiate a new Winston Logger with the settings defined above
 var logger = createLogger({
- // level: (environment === 'production') ? config.winstonprodloglevel : 'info',
-  level: 'info',
+ level: (environment === 'production') ? config.winstonprodloglevel : 'info',
   format: combine(
     label({ label: 'myApp: '}),
     timestamp({format: 'YYYY-MM-DD HH:mm:ss A ZZZ'}),
