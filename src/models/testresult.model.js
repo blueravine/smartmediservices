@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
+const winston = require('../../utils/winston');
 
 var testresultSchema = new Schema({
     id: {type: Number, required: false},
@@ -28,8 +29,8 @@ testresultSchema.pre('save', function (next) {
                      testname: self.testname}, function (err, testresultdoc) {
         if (!testresultdoc.length){
             next();
-        }else{                
-            console.log('test result exists: ',self.countrycode + '-' + self.mobile + '-' + self.testdate + '-' + self.testname);
+        }else{
+            winston.info(`test result exists: ${self.countrycode} - ${self.mobile} - ${self.testdate} - ${self.testname}`);
             next(new Error("Test Result Already exists for: " + self.testname + ' on ' + self.testdate));
         }
     });

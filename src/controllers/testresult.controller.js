@@ -3,9 +3,11 @@ const Test = require('../models/test.model');
 const TestResult = require('../models/testresult.model');
 const response = require('../schemas/api.response.testresult');
 const globalparams = require('../../globalparams.json');
+const winston = require('../../utils/winston');
 
 exports.test = function (req, res) {
-    console.log('Hello there!');
+    winston.info(`Hello there!' - ${req.originalUrl} - ${req.method} - ${req.ip}`);
+
     response.status=200;
     response.message = 'Hello!';
     response.messagecode = 2001;
@@ -22,15 +24,17 @@ exports.register = function (req, res, next) {
 exports.testresult_create = function (req, res, next) {
 let trsuccessflag = true;
 
-    console.log('finding test' + JSON.stringify(req.body.normal));
+    winston.info(`finding test ${JSON.stringify(req.body.normal)} - ${req.originalUrl} - ${req.method} - ${req.ip}`);
+
 req.body.forEach((element) => {
     User.findOne({"mobile": element.mobile, "countrycode": element.countrycode}, function(err, user) {
         if(err){
-            console.log('error while finding user by mobile number.');
+            winston.error(`${err.status || 500} - error while finding test - ${err.message} - ${req.originalUrl} - ${req.method} - ${req.ip}`);
             return next(err);
         }
         if(user){
-            console.log('user found ' + user + ' age: ' + user.age + 'gender: ' + user.gender);
+            winston.info(`user found: ${user} age: ${user.age} gender: ${user.gender} - ${req.originalUrl} - ${req.method} - ${req.ip}`);
+
             Test.findOne({"testname": element.testname,
                             "testagemin": {$lte: user.age},
                             "testagemax": {$gte: user.age},
@@ -38,12 +42,14 @@ req.body.forEach((element) => {
                             {$or: [{"countrycode": element.countrycode},{"countrycode": 0}]}]
             }, function (err, test) {
                 if (err) {
-                    console.log('error while finding test by name.');
+                    winston.error(`${err.status || 500} - error while finding test by name - ${err.message} - ${req.originalUrl} - ${req.method} - ${req.ip}`);
+
                     return next(err);
                 }
 
                 if(test) {
-                    console.log('found test by name.');
+                    winston.info(`found test by name - ${req.originalUrl} - ${req.method} - ${req.ip}`);
+
 
                     let testresult = new TestResult({
                         testdate: element.testdate,
@@ -67,7 +73,8 @@ req.body.forEach((element) => {
                     testresult.save(function (err) {
                         if (err) {
                             trsuccessflag = false;
-                            console.log('error while creating test result' + err);
+                            winston.error(`${err.status || 500} - error while creating test result - ${err.message} - ${req.originalUrl} - ${req.method} - ${req.ip}`);
+
                             return next(err);
                         }
                     })
@@ -75,19 +82,22 @@ req.body.forEach((element) => {
                 }
                 else {
                     trsuccessflag = false;
-                    console.log('test not found by name.');
+                    winston.info(`test not found by name - ${req.originalUrl} - ${req.method} - ${req.ip}`);
+
                     response.status=200;
                     response.message = 'testname not found: ' + element.testname + '.';
                     response.messagecode = 2002;
                     response.TestResult = null;
                     response.token=null;
                     }
-                    console.log('creating test result' + JSON.stringify(test) + "-" + JSON.stringify(element));
+                    winston.info(`creating test result - ${req.originalUrl} - ${req.method} - ${req.ip}`);
+
                 });
       }
       else {
         trsuccessflag = false;
-        console.log('user not found by mobile number.');
+        winston.info(`user not found by mobile number - ${req.originalUrl} - ${req.method} - ${req.ip}`);
+
         response.status=200;
         response.message = 'user not found: ' + element.countrycode + '-' + element.mobile;
         response.messagecode = 2008;
@@ -98,7 +108,8 @@ req.body.forEach((element) => {
     });
 
     if(trsuccessflag){
-    console.log('test results created');
+    winston.info(`test results created - ${req.originalUrl} - ${req.method} - ${req.ip}`);
+
     response.message = 'test results registered';
     response.messagecode = 2003;
     response.status=200;
@@ -109,16 +120,19 @@ req.body.forEach((element) => {
 };
 
 exports.testresults_bymobile = function (req, res, next) {
-    console.log('retrieving test results by mobile');
+    winston.info(`retrieving test results by mobile - ${req.originalUrl} - ${req.method} - ${req.ip}`);
+
 
                 TestResult.find({"mobile": req.headers.mobile, "countrycode": req.headers.countrycode}, function (err, testresult) {
                     if (err) {
-                        console.log('error while finding test results by mobile.');
+                        winston.error(`${err.status || 500} - error while finding test results by mobile - ${err.message} - ${req.originalUrl} - ${req.method} - ${req.ip}`);
+
                         return next(err);
                     }
 
                     if(testresult) {
-                        console.log('found test results by mobile.');
+                        winston.info(`found test results by mobile - ${req.originalUrl} - ${req.method} - ${req.ip}`);
+
                     response.status=200;
                     response.message = 'test results found';
                     response.messagecode = 2004;
@@ -126,7 +140,8 @@ exports.testresults_bymobile = function (req, res, next) {
                     response.token=null;
                     }
                     else {
-                        console.log('test results not found by mobile.');
+                        winston.info(`test results not found by mobile - ${req.originalUrl} - ${req.method} - ${req.ip}`);
+
                         response.status=200;
                         response.message = 'test results not found';
                         response.messagecode = 2005;
@@ -138,8 +153,8 @@ exports.testresults_bymobile = function (req, res, next) {
 };
 
 exports.testresults_update_bymobile = function (req, res, next) {
-    console.log('updating test results by mobile ' + 'mobile ' + req.body.mobile + "countrycode " + req.body.countrycode +
-    "testdate " + req.body.testdate + "testname " + req.body.testname);
+    winston.info(`updating test results by mobile: ${req.body.mobile} countrycode: ${req.body.countrycode} testdate: ${req.body.testdate} testname: ${req.body.testname} - ${req.originalUrl} - ${req.method} - ${req.ip}`);
+
     
     TestResult.findOneAndUpdate({"mobile": req.body.mobile, "countrycode": req.body.countrycode,
                             "testdate": req.body.testdate, "testname": req.body.testname},
@@ -147,7 +162,8 @@ exports.testresults_update_bymobile = function (req, res, next) {
                           {new: true},
                            function (err, testresult) {
         if (err) {
-            console.log(err);
+            winston.error(`${err.status || 500} - error while updating test results - ${err.message} - ${req.originalUrl} - ${req.method} - ${req.ip}`);
+
             return next(err);
         }
         if(testresult) {
@@ -170,14 +186,14 @@ exports.testresults_update_bymobile = function (req, res, next) {
 };
 
 exports.testresults_delete_bymobile = function (req, res, next) {
-    console.log('deleting test results by mobile ' + 'mobile ' + req.body.mobile + "countrycode " + req.body.countrycode +
-    "testdate " + req.body.testdate + "testname " + req.body.testname);
+    winston.info(`deleting test results by mobile: ${req.body.mobile} countrycode: ${req.body.countrycode} testdate: ${req.body.testdate} testname: ${req.body.testname} - ${req.originalUrl} - ${req.method} - ${req.ip}`);
+
     
     TestResult.findOneAndDelete({"mobile": req.body.mobile, "countrycode": req.body.countrycode,
                             "testdate": req.body.testdate, "testname": req.body.testname},
                            function (err, testresult) {
         if (err) {
-            console.log(err);
+            winston.error(`${err.status || 500} - error while deleting test results - ${err.message} - ${req.originalUrl} - ${req.method} - ${req.ip}`);
             return next(err);
         }
         if(testresult) {

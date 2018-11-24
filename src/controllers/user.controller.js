@@ -2,6 +2,7 @@ const User = require('../models/user.model');
 const response = require('../schemas/api.response.user');
 const bcrypt = require('bcrypt');
 const smartjwt = require('../../utils/jwt');
+const winston = require('../../utils/winston');
 
 let signOptions = {
     issuer: "smartmediservices",
@@ -12,7 +13,7 @@ let signOptions = {
 
 //Test
 exports.test = function (req, res) {
-    console.log('Hello there!');
+    winston.info(`Hello there! - ${req.originalUrl} - ${req.method} - ${req.ip}`);
     response.status=200;
     response.message = 'Hello!';
     response.messagecode = 1001;
@@ -27,7 +28,7 @@ exports.register = function (req, res, next) {
 };
 
 exports.user_create = function (req, res, next) {
-    console.log('creating user');
+    winston.info(`creating user - ${req.originalUrl} - ${req.method} - ${req.ip}`);
 
     let user = new User({
         name: req.body.name,
@@ -42,10 +43,10 @@ exports.user_create = function (req, res, next) {
 
     user.save(function (err) {
         if (err) {
-            console.log('error while creating user' + err);
+            winston.error(`${err.status || 500} - error while creating user - ${err.message} - ${req.originalUrl} - ${req.method} - ${req.ip}`);
             return next(err);
         }
-        console.log('user created');
+        winston.info(`user created - ${req.originalUrl} - ${req.method} - ${req.ip}`);
         response.message = 'user created';
         response.messagecode = 1002;
         let {password_hash, ...withoutpwdhash} = user.toObject();
@@ -58,17 +59,18 @@ exports.user_create = function (req, res, next) {
 };
 
 exports.user_update_password = function (req, res, next) {
-    console.log('updating password for user');
+    winston.info(`updating password for user - ${req.originalUrl} - ${req.method} - ${req.ip}`);
 
         User.findOneAndUpdate({"mobile": req.body.mobile, "countrycode": req.body.countrycode},
         {$set: {"password_hash":bcrypt.hashSync(req.body.password, 10)}},
         {new: true},
         function (err, user) {
             if (err) {
+                winston.error(`${err.status || 500} - error while updating password - ${err.message} - ${req.originalUrl} - ${req.method} - ${req.ip}`);
                 return next(err); 
             }
             if(user) {
-                console.log('user updated: ' + user);
+                winston.info(`user updated: ${user} - ${req.originalUrl} - ${req.method} - ${req.ip}`);
                 response.status=200;
                 response.message = 'user updated';
                 response.messagecode = 1009;
@@ -88,22 +90,24 @@ exports.user_update_password = function (req, res, next) {
 };
 
 exports.user_authenticate = function (req, res, next) {
-    console.log('authenticating user');
+    winston.info(`authenticating user - ${req.originalUrl} - ${req.method} - ${req.ip}`);
 
     User.findOne({"mobile": req.body.mobile, "countrycode": req.body.countrycode}, function (err, user) {
         if (err) {
+            winston.error(`${err.status || 500} - error while authenticating user - ${err.message} - ${req.originalUrl} - ${req.method} - ${req.ip}`);
+
             return next(err);
         }
 
         if(user) {
-            console.log('user found authenticating');
+            winston.info(`user found authenticating - ${req.originalUrl} - ${req.method} - ${req.ip}`);
 
             if(bcrypt.compareSync(req.body.password, user.password_hash)){
                 let {password_hash, ...withoutpwdhash} = user.toObject();
                 signOptions.subject=req.body.countrycode + '-' + req.body.mobile;
                 signOptions.audience=req.body.jwtaudience;
                 let token = smartjwt.sign({mobile: req.body.mobile, countrycode: req.body.countrycode},signOptions);
-                console.log('user authenticated');
+                winston.info(`user authenticated - ${req.originalUrl} - ${req.method} - ${req.ip}`);
                 response.status=200;
                 response.message = 'user authenticated';
                 response.messagecode = 1003;
@@ -111,7 +115,7 @@ exports.user_authenticate = function (req, res, next) {
                 response.token = token;
             }
             else {
-                console.log('password invalid');
+                winston.info(`password invalid - ${req.originalUrl} - ${req.method} - ${req.ip}`);
                 response.status=200;
                 response.message = 'user authentication failed';
                 response.messagecode = 1004;
@@ -133,7 +137,7 @@ exports.user_authenticate = function (req, res, next) {
 
 exports.user_verify_token = function (req, res, next) {
 
-                console.log('user token is valid.');
+                winston.info(`user token is valid - ${req.originalUrl} - ${req.method} - ${req.ip}`);
                 response.status=200;
                 response.message = 'jwt token valid';
                 response.messagecode = 1006;
@@ -145,10 +149,12 @@ exports.user_verify_token = function (req, res, next) {
 };
 
 exports.user_details = function (req, res, next) {
-    console.log('retrieving user');
+    winston.info(`retrieving user - ${req.originalUrl} - ${req.method} - ${req.ip}`);
 
     User.findById(req.params.id, function (err, user) {
         if (err) {
+            winston.error(`${err.status || 500} - error while retrieving user - ${err.message} - ${req.originalUrl} - ${req.method} - ${req.ip}`);
+
             return next(err);
         }
         
@@ -172,16 +178,16 @@ exports.user_details = function (req, res, next) {
 };
 
 exports.user_details_bymobile = function (req, res, next) {
-    console.log('retrieving user by mobile');
+    winston.info(`retrieving user by mobile - ${req.originalUrl} - ${req.method} - ${req.ip}`);
 
                 User.findOne({"mobile": req.body.mobile, "countrycode": req.body.countrycode}, function (err, user) {
                     if (err) {
-                        console.log('error while finding user by mobile.');
+                        winston.error(`${err.status || 500} - error while finding user by mobile - ${err.message} - ${req.originalUrl} - ${req.method} - ${req.ip}`);
                         return next(err);
                     }
 
                     if(user) {
-                        console.log('found user by mobile.');
+                    winston.info(`found user by mobile - ${req.originalUrl} - ${req.method} - ${req.ip}`);
                     response.status=200;
                     response.message = 'user found';
                     response.messagecode = 1007;
@@ -189,7 +195,7 @@ exports.user_details_bymobile = function (req, res, next) {
                     response.token=null;
                     }
                     else {
-                        console.log('user not found by mobile.');
+                        winston.info(`user not found by mobile - ${req.originalUrl} - ${req.method} - ${req.ip}`);
                         response.status=200;
                         response.message = 'user not found';
                         response.messagecode = 1005;
@@ -201,17 +207,19 @@ exports.user_details_bymobile = function (req, res, next) {
 };
 
 exports.user_update_bymobile = function (req, res, next) {
-    console.log('updating user by mobile');
+    winston.info(`updating user by mobile - ${req.originalUrl} - ${req.method} - ${req.ip}`);
     
     User.findOneAndUpdate({"mobile": req.headers.mobile, "countrycode": req.headers.countrycode},
                           {$set: {"name":req.body.name,"age":req.body.age,"gender":req.body.gender,"email":req.body.email}},
                           {new: true},
                           function (err, user) {
         if (err) {
+            winston.error(`${err.status || 500} - error while updating user - ${err.message} - ${req.originalUrl} - ${req.method} - ${req.ip}`);
+
             return next(err);
         }
         if(user) {
-            console.log('user updated: ' + user);
+            winston.info(`user updated: ${user} - ${req.originalUrl} - ${req.method} - ${req.ip}`);
             response.status=200;
             response.message = 'user updated';
             response.messagecode = 1008;

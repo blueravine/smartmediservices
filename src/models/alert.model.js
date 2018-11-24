@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
+const winston = require('../../utils/winston');
 
 var alertSchema = new Schema({
     id: {type: Number, required: false},
@@ -29,8 +30,9 @@ alertSchema.pre('save', function (next) {
          function (err, alertdoc) {
         if (!alertdoc.length){
             next();
-        }else{                
-            console.log('Alert exists: ',self.countrycode + '-' + self.mobile + '-' + self.medicinename);
+        }else{
+            winston.info(`Alert exists: ${self.countrycode} - ${self.mobile} - ${self.medicinename}`);
+
             next(new Error("Alert Already exists for: " + self.countrycode + '-' + self.mobile + ' and ' + self.medicinename));
         }
     });

@@ -4,6 +4,7 @@ const config = require('./config.json');
 const response = require('./src/schemas/api.response.user');
 const techerrorres = require('./src/schemas/api.response.techerror');
 const smartjwt = require('./utils/jwt');
+const winston = require('./utils/winston');
 
 //Import routes for the user
 const user = require('./src/routes/user.route');
@@ -23,6 +24,7 @@ const app = express();
 //set up MongoDB connection with mongoose
 const mongoose = require('mongoose');
 
+
 let db_url = 'mongodb://localhost:27017/smarmedi';
 const mongoDB = process.env.MONGODB_URI || config.MONGODB_URI || db_url;
 
@@ -30,7 +32,7 @@ mongoose.connect(mongoDB, {useNewUrlParser: true} );
 mongoose.Promise = global.Promise;
 
 const db = mongoose.connection;
-db.on('error', console.error.bind(console, 'MongoDB connection error:'));
+db.on('error', console.error.bind('MongoDB connection error'));
 
 let signOptions = {
     issuer: "smartmediservices",
@@ -48,7 +50,7 @@ app.use(function (req, res, next) {
     var method = req.method;
     var url = req.url;
 
-    console.log((++num) + ". IP " + ip + " " + method + " " + url);
+    winston.info(`${++num} - ${req.originalUrl} - ${req.method} - ${req.ip}`);
     next();
 });
 
@@ -109,7 +111,7 @@ app.use('/test', test);
 app.use('/alert', alert);
 
 app.use(function (req, res, next) {
-    console.log("Cannot find RESTful resource!");
+    winston.info(`'Cannot find RESTful resource!' - ${req.originalUrl} - ${req.method} - ${req.ip}`);
 
     techerrorres.status=404;
     techerrorres.message = 'Cannot find RESTful resource!';
@@ -119,7 +121,7 @@ app.use(function (req, res, next) {
   });
 
 app.use(function (err, req, res, next) {
-console.error(err.stack);
+winston.error(`${err.status || 500} - ${err.message} - ${req.originalUrl} - ${req.method} - ${req.ip} - ${err.stack}`);
 
 techerrorres.status=500;
     if(err.message.toLowerCase().includes('user already exists')){
@@ -145,5 +147,5 @@ res.status(techerrorres.status).send(techerrorres);
 const port = process.env.PORT || config.PORT || 3057;
 
 app.listen(port, () => {
-    console.log('Server is running on the port' + port);
+    winston.info(`Server is running on the port: ${port} `);
 });

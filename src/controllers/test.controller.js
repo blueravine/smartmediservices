@@ -1,5 +1,6 @@
 const Test = require('../models/test.model');
 const response = require('../schemas/api.response.test');
+const winston = require('../../utils/winston');
 
 exports.register = function (req, res, next) {
     var newTest = test_create(req);   
@@ -8,7 +9,8 @@ exports.register = function (req, res, next) {
 exports.test_create = function (req, res, next) {
 let successflag = true;
 
-    console.log('creating test ' + JSON.stringify(req.body));
+    winston.info(`creating test ${JSON.stringify(req.body)} - ${req.originalUrl} - ${req.method} - ${req.ip}`);
+
 req.body.forEach(element => {
     
         let test = new Test({
@@ -28,14 +30,16 @@ req.body.forEach(element => {
         test.save(function (err) {
             if (err) {
                 successflag = false;
-                console.log('error while creating test ' + err);
+                winston.error(`${err.status || 500} - error while creating test - ${err.message} - ${req.originalUrl} - ${req.method} - ${req.ip}`);
+
                 return next(err);
             }
         });
     });
 
     if(successflag){
-    console.log('tests  created');
+    winston.info(`tests  created - ${req.originalUrl} - ${req.method} - ${req.ip}`);
+
     response.message = 'tests  registered';
     response.messagecode = 3001;
     response.status=200;
@@ -46,7 +50,8 @@ req.body.forEach(element => {
 };
 
 exports.tests_byname = function (req, res, next) {
-    console.log('retrieving tests by name' + JSON.stringify(req.body));
+    winston.info(`retrieving tests by name ${JSON.stringify(req.body)} - ${req.originalUrl} - ${req.method} - ${req.ip}`);
+
 
                 Test.findOne({"testname": req.body.name,
                        "testagemin": {$lte: req.body.age},
@@ -55,12 +60,14 @@ exports.tests_byname = function (req, res, next) {
                        {$or: [{"countrycode": req.body.countrycode},{"countrycode": 0}]}]
                 }, function (err, test) {
                     if (err) {
-                        console.log('error while finding tests by name.');
+                        winston.error(`${err.status || 500} - error while finding tests by name - ${err.message} - ${req.originalUrl} - ${req.method} - ${req.ip}`);
+
                         return next(err);
                     }
 
                     if(test) {
-                        console.log('found tests by name.');
+                        winston.info(`found tests by name' - ${req.originalUrl} - ${req.method} - ${req.ip}`);
+
                     response.status=200;
                     response.message = 'tests found';
                     response.messagecode = 3002;
@@ -68,7 +75,8 @@ exports.tests_byname = function (req, res, next) {
                     response.token=null;
                     }
                     else {
-                        console.log('tests not found by name.');
+                        winston.info(`tests not found by name - ${req.originalUrl} - ${req.method} - ${req.ip}`);
+
                         response.status=200;
                         response.message = 'tests not found';
                         response.messagecode = 3003;
@@ -80,7 +88,8 @@ exports.tests_byname = function (req, res, next) {
 };
 
 exports.tests_all = function (req, res, next) {
-    console.log('retrieving all tests' + JSON.stringify(req.body));
+    winston.info(`retrieving all tests ${JSON.stringify(req.body)} - ${req.originalUrl} - ${req.method} - ${req.ip}`);
+
 
                 Test.find({
                        "testagemin": {$lte: req.body.age},
@@ -89,12 +98,14 @@ exports.tests_all = function (req, res, next) {
                        {$or: [{"countrycode": req.body.countrycode},{"countrycode": 0}]}]
                 }, function (err, test) {
                     if (err) {
-                        console.log('error while finding all tests.');
+                        winston.error(`${err.status || 500} - error while finding all tests - ${err.message} - ${req.originalUrl} - ${req.method} - ${req.ip}`);
+
                         return next(err);
                     }
 
                     if(test) {
-                        console.log('found all tests.');
+                        winston.info(`found all tests - ${req.originalUrl} - ${req.method} - ${req.ip}`);
+
                     response.status=200;
                     response.message = 'tests found';
                     response.messagecode = 3006;
@@ -102,7 +113,8 @@ exports.tests_all = function (req, res, next) {
                     response.token=null;
                     }
                     else {
-                        console.log('tests not found.');
+                        winston.info(`tests not found - ${req.originalUrl} - ${req.method} - ${req.ip}`);
+
                         response.status=200;
                         response.message = 'tests not found';
                         response.messagecode = 3007;
@@ -114,7 +126,8 @@ exports.tests_all = function (req, res, next) {
 };
 
 exports.test_update_byname = function (req, res, next) {
-    console.log('updating test by name. countrycode: ' + req.body.countrycode + ' testname: ' + req.body.testname);
+    winston.info(`updating test by name. countrycode: ${req.body.countrycode} testname: ${req.body.testname} - ${req.originalUrl} - ${req.method} - ${req.ip}`);
+
     
     Test.findOneAndUpdate({"testname": req.body.name,
                             "testagemin": {$lte: req.body.age},
@@ -126,7 +139,8 @@ exports.test_update_byname = function (req, res, next) {
                           {new: true},
         function (err, test) {
                 if (err) {
-                    console.log(err);
+                    winston.error(`${err.status || 500} - error while updating test - ${err.message} - ${req.originalUrl} - ${req.method} - ${req.ip}`);
+
                     return next(err);
                 }
                 if(test) {
@@ -149,7 +163,8 @@ exports.test_update_byname = function (req, res, next) {
 };
 
 exports.test_delete_byname = function (req, res, next) {
-    console.log('deleting test by name. countrycode: ' + req.body.countrycode + ' testname: ' + req.body.testname);
+    winston.info(`deleting test by name. countrycode: ${req.body.countrycode} testname: ${req.body.testname} - ${req.originalUrl} - ${req.method} - ${req.ip}`);
+
     
     Test.findOneAndDelete({"testname": req.body.name,
                             "testagemin": {$lte: req.body.age},
@@ -159,7 +174,8 @@ exports.test_delete_byname = function (req, res, next) {
                           },
         function (err, test) {
                 if (err) {
-                    console.log(err);
+                    winston.error(`${err.status || 500} - error while deleting test - ${err.message} - ${req.originalUrl} - ${req.method} - ${req.ip}`);
+
                     return next(err);
                 }
                 if(test) {

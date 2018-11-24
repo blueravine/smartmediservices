@@ -1,5 +1,7 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
+const winston = require('../../utils/winston');
+
 
 var userSchema = new Schema({
     id: {type: Number, required: false},
@@ -19,8 +21,8 @@ userSchema.pre('save', function (next) {
     User.find({mobile : self.mobile, countrycode: self.countrycode}, function (err, userdoc) {
         if (!userdoc.length){
             next();
-        }else{                
-            console.log('user exists: ',self.countrycode + '-' + self.mobile);
+        }else{
+            winston.info(`user exists: ${self.countrycode} - ${self.mobile}`);
             next(new Error("User Already exists!"));
         }
     });
@@ -32,7 +34,7 @@ userSchema.pre('save', function (next) {
         if (!userdoc.length){
             next();
         }else{                
-            console.log('username already exists: ', self.username);
+            winston.info(`username already exists: ${self.username}`);
             next(new Error("UserName Already exists!"));
         }
     });

@@ -1,6 +1,7 @@
 const jwt   = require('jsonwebtoken');
 const config = require('../config.json');
 const techerrorres = require('../src/schemas/api.response.techerror');
+const winston = require('./winston');
 
 let secret = config.secret;
 let tokenexpiry = config.jwtexpiresin?config.jwtexpiresin:"15d";
@@ -15,12 +16,12 @@ module.exports = {
           const token = bearer[1];
 
           req.token = token;
-          console.log('token: ' + token);
-          console.log('mobile: ' + req.headers.mobile + ' country code: ' + req.headers.countrycode);
+          winston.info(`token: ${token} - ${req.originalUrl} - ${req.method} - ${req.ip}`);
+
           next();
       }
       else{
-        console.log('error while getting token.');
+        winston.info(`error while getting token. - ${req.originalUrl} - ${req.method} - ${req.ip}`);
 
         techerrorres.status=403;
         techerrorres.message = 'Error while getting token!';
@@ -39,7 +40,7 @@ module.exports = {
       expiresIn:  tokenexpiry,
       algorithm:  tokenalgorithm
   };
-  console.log(signOptions.issuer + " - " + signOptions.subject + " - " + signOptions.audience + " - " + signOptions.expiresIn + " - " + signOptions.algorithm);
+  winston.info(`${signOptions.issuer}  - ${signOptions.subject} - ${signOptions.audience} - ${signOptions.expiresIn} - ${signOptions.algorithm} - ${req.originalUrl} - ${req.method} - ${req.ip}`);
   return jwt.sign(payload, secret, signOptions);
 },
 
@@ -55,7 +56,7 @@ verify: (token, $Option) => {
    try{
      return jwt.verify(token, secret, verifyOptions);
    }catch (err){
-     console.log(err);
+    winston.error(`${err.status || 500} - ${err.message}`);
      return false;
    }
 },
