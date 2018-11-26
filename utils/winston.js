@@ -1,16 +1,13 @@
-const appRoot = require('app-root-path');
 const {createLogger, format, transports} = require('winston');
 const {combine, timestamp, label, printf } = format;
 const config = require('../config.json');
 
 var environment = process.env.NODE_ENV || config.NODE_ENV || 'development';
 
-console.log(`${appRoot}` + ': appRoot');
-
 // define the custom settings for each transport (file, console)
 var options = {
   file: {
-    filename: `${appRoot}/logs/app.log`,
+    filename: '../logs/app.log',
     handleExceptions: true,
     json: true,
     maxsize: 5242880, // 5MB
