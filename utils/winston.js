@@ -7,7 +7,7 @@ var environment = process.env.NODE_ENV || config.NODE_ENV || 'development';
 // define the custom settings for each transport (file, console)
 var options = {
   file: {
-    filename: '../logs/app.log',
+    filename: 'logs/app.log',
     handleExceptions: true,
     json: true,
     maxsize: 5242880, // 5MB
