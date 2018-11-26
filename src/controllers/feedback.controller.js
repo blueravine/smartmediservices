@@ -5,6 +5,7 @@ const winston = require('../../utils/winston');
 //Test
 exports.test = function (req, res) {
     winston.info(`Hello there! - ${req.originalUrl} - ${req.method} - ${req.ip}`);
+    console.log(`Hello there! - ${req.originalUrl} - ${req.method} - ${req.ip}`);
     response.status=200;
     response.message = 'Hello!';
     response.messagecode = 6001;
