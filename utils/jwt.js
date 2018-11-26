@@ -40,7 +40,7 @@ module.exports = {
       expiresIn:  tokenexpiry,
       algorithm:  tokenalgorithm
   };
-  winston.info(`${signOptions.issuer}  - ${signOptions.subject} - ${signOptions.audience} - ${signOptions.expiresIn} - ${signOptions.algorithm} - ${req.originalUrl} - ${req.method} - ${req.ip}`);
+  winston.info(`${signOptions.issuer}  - ${signOptions.subject} - ${signOptions.audience} - ${signOptions.expiresIn} - ${signOptions.algorithm}`);
   return jwt.sign(payload, secret, signOptions);
 },
 
