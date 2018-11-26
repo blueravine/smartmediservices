@@ -142,7 +142,11 @@ techerrorres.status=500;
     }
     else if(err.message.toLowerCase().includes('test result already exists')){
         techerrorres.message = err.message;
-        techerrorres.messagecode = 1011;
+        techerrorres.messagecode = 2050;
+    }
+    else if(err.message.toLowerCase().includes('test already exists')){
+        techerrorres.message = err.message;
+        techerrorres.messagecode = 3050;
     }
     else {
         techerrorres.message = 'Internal Server Error! ' + err.message;

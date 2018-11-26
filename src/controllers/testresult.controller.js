@@ -36,20 +36,21 @@ req.body.forEach((element) => {
             winston.info(`user found: ${user} age: ${user.age} gender: ${user.gender} - ${req.originalUrl} - ${req.method} - ${req.ip}`);
 
             let userageontest = (element.age ? element.age : user.age);
+            
             Test.findOne({"testname": element.testname,
                             "testagemin": {$lte: userageontest},
                             "testagemax": {$gte: userageontest},
-                            $and:[{$or:[{"testgender": user.gender},{"testgender":"UNISEX"}]},
-                            {$or: [{"countrycode": element.countrycode},{"countrycode": 0}]}]
-            }, function (err, test) {
+                            "testgender": user.gender,
+                            "countrycode": element.countrycode
+            }, function (err, testgendercountry) {
                 if (err) {
                     winston.error(`${err.status || 500} - error while finding test by name - ${err.message} - ${req.originalUrl} - ${req.method} - ${req.ip}`);
 
                     return next(err);
                 }
 
-                if(test) {
-                    winston.info(`found test by name - ${req.originalUrl} - ${req.method} - ${req.ip}`);
+                if(testgendercountry) {
+                    winston.info(`found testgendercountry by name - ${test} - ${req.originalUrl} - ${req.method} - ${req.ip}`);
 
 
                     let testresult = new TestResult({
@@ -59,15 +60,15 @@ req.body.forEach((element) => {
                         mobile: element.mobile,
                         countrycode: element.countrycode,
                         value: element.value,
-                        testunit: test.testunit,
-                        normalmin:test.normalmin,
-                        normalmax:test.normalmax,
-                        normalcomparator:test.normalcomparator,
-                        result: ((element.value >= test.normalmin) && (element.value <= test.normalmax)) ? 'normal'
-                                     : (element.value > test.normalmax) ? 'high'
-                                     : (element.value < test.normalmin) ? 'low' : 'undetermined',
-                        categoryid: test.categoryid,
-                        category: test.category,
+                        testunit: testgendercountry.testunit,
+                        normalmin:testgendercountry.normalmin,
+                        normalmax:testgendercountry.normalmax,
+                        normalcomparator:testgendercountry.normalcomparator,
+                        result: ((element.value >= testgendercountry.normalmin) && (element.value <= testgendercountry.normalmax)) ? 'normal'
+                                     : (element.value > testgendercountry.normalmax) ? 'high'
+                                     : (element.value < testgendercountry.normalmin) ? 'low' : 'undetermined',
+                        categoryid: testgendercountry.categoryid,
+                        category: testgendercountry.category,
                         notes: element.notes
                     });
             
@@ -82,6 +83,194 @@ req.body.forEach((element) => {
             
                 }
                 else {
+
+                            Test.findOne({"testname": element.testname,
+                                            "testagemin": {$lte: userageontest},
+                                            "testagemax": {$gte: userageontest},
+                                            "testgender":"UNISEX",
+                                            "countrycode": element.countrycode
+                            }, function (err, testunicountry) {
+                                if (err) {
+                                    winston.error(`${err.status || 500} - error while finding test by name - ${err.message} - ${req.originalUrl} - ${req.method} - ${req.ip}`);
+
+                                    return next(err);
+                                }
+
+                                if(testunicountry) {
+                                    winston.info(`found testunicountry by name - ${req.originalUrl} - ${req.method} - ${req.ip}`);
+
+
+                                    let testresult = new TestResult({
+                                        testdate: element.testdate,
+                                        ageontest: element.age? element.age : user.age,
+                                        testname: element.testname,
+                                        mobile: element.mobile,
+                                        countrycode: element.countrycode,
+                                        value: element.value,
+                                        testunit: testunicountry.testunit,
+                                        normalmin:testunicountry.normalmin,
+                                        normalmax:testunicountry.normalmax,
+                                        normalcomparator:testunicountry.normalcomparator,
+                                        result: ((element.value >= testunicountry.normalmin) && (element.value <= testunicountry.normalmax)) ? 'normal'
+                                                    : (element.value > testunicountry.normalmax) ? 'high'
+                                                    : (element.value < testunicountry.normalmin) ? 'low' : 'undetermined',
+                                        categoryid: testunicountry.categoryid,
+                                        category: testunicountry.category,
+                                        notes: element.notes
+                                    });
+                            
+                                    testresult.save(function (err) {
+                                        if (err) {
+                                            trsuccessflag = false;
+                                            winston.error(`${err.status || 500} - error while creating test result - ${err.message} - ${req.originalUrl} - ${req.method} - ${req.ip}`);
+
+                                            return next(err);
+                                        }
+                                    })
+                            
+                                }
+                                else {
+
+                                                Test.findOne({"testname": element.testname,
+                                                        "testagemin": {$lte: userageontest},
+                                                        "testagemax": {$gte: userageontest},
+                                                        "testgender": user.gender,
+                                                        "countrycode": 0
+                                        }, function (err, testgendergeneric) {
+                                            if (err) {
+                                                winston.error(`${err.status || 500} - error while finding test by name - ${err.message} - ${req.originalUrl} - ${req.method} - ${req.ip}`);
+
+                                                return next(err);
+                                            }
+
+                                            if(testgendergeneric) {
+                                                winston.info(`found testgendergeneric by name - ${req.originalUrl} - ${req.method} - ${req.ip}`);
+
+
+                                                let testresult = new TestResult({
+                                                    testdate: element.testdate,
+                                                    ageontest: element.age? element.age : user.age,
+                                                    testname: element.testname,
+                                                    mobile: element.mobile,
+                                                    countrycode: element.countrycode,
+                                                    value: element.value,
+                                                    testunit: testgendergeneric.testunit,
+                                                    normalmin:testgendergeneric.normalmin,
+                                                    normalmax:testgendergeneric.normalmax,
+                                                    normalcomparator:testgendergeneric.normalcomparator,
+                                                    result: ((element.value >= testgendergeneric.normalmin) && (element.value <= testgendergeneric.normalmax)) ? 'normal'
+                                                                : (element.value > testgendergeneric.normalmax) ? 'high'
+                                                                : (element.value < testgendergeneric.normalmin) ? 'low' : 'undetermined',
+                                                    categoryid: testgendergeneric.categoryid,
+                                                    category: testgendergeneric.category,
+                                                    notes: element.notes
+                                                });
+                                        
+                                                testresult.save(function (err) {
+                                                    if (err) {
+                                                        trsuccessflag = false;
+                                                        winston.error(`${err.status || 500} - error while creating test result - ${err.message} - ${req.originalUrl} - ${req.method} - ${req.ip}`);
+
+                                                        return next(err);
+                                                    }
+                                                })
+                                        
+                                            }
+                                            else {
+
+                                                Test.findOne({"testname": element.testname,
+                                                "testagemin": {$lte: userageontest},
+                                                "testagemax": {$gte: userageontest},
+                                                "testgender":"UNISEX",
+                                                "countrycode": 0
+                                                }, function (err, testunigeneric) {
+                                                    if (err) {
+                                                        winston.error(`${err.status || 500} - error while finding test by name - ${err.message} - ${req.originalUrl} - ${req.method} - ${req.ip}`);
+                                    
+                                                        return next(err);
+                                                    }
+                                    
+                                                    if(test) {
+                                                        winston.info(`found testunigeneric by name - ${req.originalUrl} - ${req.method} - ${req.ip}`);
+                                    
+                                    
+                                                        let testresult = new TestResult({
+                                                            testdate: element.testdate,
+                                                            ageontest: element.age? element.age : user.age,
+                                                            testname: element.testname,
+                                                            mobile: element.mobile,
+                                                            countrycode: element.countrycode,
+                                                            value: element.value,
+                                                            testunit: testunigeneric.testunit,
+                                                            normalmin:testunigeneric.normalmin,
+                                                            normalmax:testunigeneric.normalmax,
+                                                            normalcomparator:testunigeneric.normalcomparator,
+                                                            result: ((element.value >= testunigeneric.normalmin) && (element.value <= testunigeneric.normalmax)) ? 'normal'
+                                                                        : (element.value > testunigeneric.normalmax) ? 'high'
+                                                                        : (element.value < testunigeneric.normalmin) ? 'low' : 'undetermined',
+                                                            categoryid: testunigeneric.categoryid,
+                                                            category: testunigeneric.category,
+                                                            notes: element.notes
+                                                        });
+                                                
+                                                        testresult.save(function (err) {
+                                                            if (err) {
+                                                                trsuccessflag = false;
+                                                                winston.error(`${err.status || 500} - error while creating test result - ${err.message} - ${req.originalUrl} - ${req.method} - ${req.ip}`);
+                                    
+                                                                return next(err);
+                                                            }
+                                                        })
+                                                
+                                                    }
+                                                    else {
+                                    
+                                    
+                                    
+                                                        
+                                                        trsuccessflag = false;
+                                                        winston.info(`test not found by name - ${req.originalUrl} - ${req.method} - ${req.ip}`);
+                                    
+                                                        response.status=200;
+                                                        response.message = 'testname not found: ' + element.testname + '.';
+                                                        response.messagecode = 2002;
+                                                        response.TestResult = null;
+                                                        response.token=null;
+                                                        }
+                                                        winston.info(`creating test result - ${req.originalUrl} - ${req.method} - ${req.ip}`);
+                                    
+                                                    }); // Test findOne gender and country
+
+                                                
+                                                trsuccessflag = false;
+                                                winston.info(`test not found by name - ${req.originalUrl} - ${req.method} - ${req.ip}`);
+
+                                                response.status=200;
+                                                response.message = 'testname not found: ' + element.testname + '.';
+                                                response.messagecode = 2002;
+                                                response.TestResult = null;
+                                                response.token=null;
+                                                }
+                                                winston.info(`creating test result - ${req.originalUrl} - ${req.method} - ${req.ip}`);
+
+                                            }); // Test findOne gender and country
+
+
+                                    
+                                    trsuccessflag = false;
+                                    winston.info(`test not found by name - ${req.originalUrl} - ${req.method} - ${req.ip}`);
+
+                                    response.status=200;
+                                    response.message = 'testname not found: ' + element.testname + '.';
+                                    response.messagecode = 2002;
+                                    response.TestResult = null;
+                                    response.token=null;
+                                    }
+                                    winston.info(`creating test result - ${req.originalUrl} - ${req.method} - ${req.ip}`);
+
+                                }); // Test findOne gender and country
+
+
                     trsuccessflag = false;
                     winston.info(`test not found by name - ${req.originalUrl} - ${req.method} - ${req.ip}`);
 
@@ -93,7 +282,7 @@ req.body.forEach((element) => {
                     }
                     winston.info(`creating test result - ${req.originalUrl} - ${req.method} - ${req.ip}`);
 
-                });
+                }); // Test findOne gender and country
       }
       else {
         trsuccessflag = false;
@@ -165,28 +354,31 @@ exports.testresults_update_bymobile = function (req, res, next) {
             winston.info(`user found: ${user} age: ${user.age} gender: ${user.gender} - ${req.originalUrl} - ${req.method} - ${req.ip}`);
 
             let userageontest = (req.body.age ? req.body.age : user.age);
+            var testfound;
             Test.findOne({"testname": req.body.testname,
                             "testagemin": {$lte: userageontest},
                             "testagemax": {$gte: userageontest},
-                            $and:[{$or:[{"testgender": user.gender},{"testgender":"UNISEX"}]},
-                            {$or: [{"countrycode": req.body.countrycode},{"countrycode": 0}]}]
-            }, function (err, test) {
+                            "testgender": user.gender,
+                            "countrycode": req.body.countrycode
+            }, function (err, testgendercountry) {
                 if (err) {
                     winston.error(`${err.status || 500} - error while finding test by name - ${err.message} - ${req.originalUrl} - ${req.method} - ${req.ip}`);
 
                     return next(err);
                 }
 
-                if(test) {
-                    winston.info(`found test by name - ${req.originalUrl} - ${req.method} - ${req.ip}`);
+                if(testgendercountry) {
+                    winston.info(`found testgendercountry by name - ${testgendercountry} - ${req.originalUrl} - ${req.method} - ${req.ip}`);
+
+                    testfound = testgendercountry;
 
                     TestResult.findOneAndUpdate({"mobile": req.body.mobile, "countrycode": req.body.countrycode,
                             "testdate": req.body.testdate, "testname": req.body.testname},
                           {$set: {value: req.body.value, ageontest: req.body.age, notes: req.body.notes,
-                            normalmin:test.normalmin,
-                            normalmax:test.normalmax,
-                            normalcomparator:test.normalcomparator,
-                            result: ((req.body.value >= test.normalmin) && (req.body.value <= test.normalmax)) ? 'normal'
+                            normalmin:testfound.normalmin,
+                            normalmax:testfound.normalmax,
+                            normalcomparator:testfound.normalcomparator,
+                            result: ((req.body.value >= testfound.normalmin) && (req.body.value <= testfound.normalmax)) ? 'normal'
                                          : (req.body.value > req.body.normalmax) ? 'high'
                                          : (req.body.value < req.body.normalmin) ? 'low' : 'undetermined'
                         }},
@@ -211,11 +403,182 @@ exports.testresults_update_bymobile = function (req, res, next) {
                                             response.TestResult = null;
                                             response.token=null;
                                         }        
-
                                         res.status(response.status).send(response);
+
                                 })
+
+
+
+                } else {
+                    Test.findOne({"testname": req.body.testname,
+                            "testagemin": {$lte: userageontest},
+                            "testagemax": {$gte: userageontest},
+                            "testgender":"UNISEX",
+                            "countrycode": req.body.countrycode
+                            }, function (err, testunicountry) {
+                                if (err) {
+                                    winston.error(`${err.status || 500} - error while finding test by name - ${err.message} - ${req.originalUrl} - ${req.method} - ${req.ip}`);
+
+                                    return next(err);
+                                }
+
+                                if(testunicountry) {
+                                    winston.info(`found testunicountry by name - ${testunicountry} - ${req.originalUrl} - ${req.method} - ${req.ip}`);
+
+                                    testfound = testunicountry;
+
+                                    TestResult.findOneAndUpdate({"mobile": req.body.mobile, "countrycode": req.body.countrycode,
+                                            "testdate": req.body.testdate, "testname": req.body.testname},
+                                          {$set: {value: req.body.value, ageontest: req.body.age, notes: req.body.notes,
+                                            normalmin:testfound.normalmin,
+                                            normalmax:testfound.normalmax,
+                                            normalcomparator:testfound.normalcomparator,
+                                            result: ((req.body.value >= testfound.normalmin) && (req.body.value <= testfound.normalmax)) ? 'normal'
+                                                         : (req.body.value > req.body.normalmax) ? 'high'
+                                                         : (req.body.value < req.body.normalmin) ? 'low' : 'undetermined'
+                                        }},
+                                          {new: true},
+                                           function (err, testresult) {
+                                                    if (err) {
+                                                        winston.error(`${err.status || 500} - error while updating test results - ${err.message} - ${req.originalUrl} - ${req.method} - ${req.ip}`);
+                
+                                                        return next(err);
+                                                    }
+                                                    if(testresult) {
+                                                        response.status=200;
+                                                        response.message = 'test result updated';
+                                                        response.messagecode = 2006;
+                                                        response.TestResult = testresult;
+                                                        response.token=null;
+                                                        }
+                                                        else {
+                                                            response.status=200;
+                                                            response.message = 'test result not found';
+                                                            response.messagecode = 2007;
+                                                            response.TestResult = null;
+                                                            response.token=null;
+                                                        }        
+                                                        res.status(response.status).send(response);
+                
+                                                })
+                
+
+                                } 
+                    else {
+                        Test.findOne({"testname": req.body.testname,
+                            "testagemin": {$lte: userageontest},
+                            "testagemax": {$gte: userageontest},
+                            "testgender": user.gender,
+                            "countrycode": 0
+                        }, function (err, testgendergeneric) {
+                            if (err) {
+                                winston.error(`${err.status || 500} - error while finding test by name - ${err.message} - ${req.originalUrl} - ${req.method} - ${req.ip}`);
+
+                                return next(err);
+                            }
+
+                            if(testgendergeneric) {
+                                winston.info(`found testgendergeneric by name - ${testgendergeneric} - ${req.originalUrl} - ${req.method} - ${req.ip}`);
+
+                                testfound = testgendergeneric;
+
+                                TestResult.findOneAndUpdate({"mobile": req.body.mobile, "countrycode": req.body.countrycode,
+                                        "testdate": req.body.testdate, "testname": req.body.testname},
+                                      {$set: {value: req.body.value, ageontest: req.body.age, notes: req.body.notes,
+                                        normalmin:testfound.normalmin,
+                                        normalmax:testfound.normalmax,
+                                        normalcomparator:testfound.normalcomparator,
+                                        result: ((req.body.value >= testfound.normalmin) && (req.body.value <= testfound.normalmax)) ? 'normal'
+                                                     : (req.body.value > req.body.normalmax) ? 'high'
+                                                     : (req.body.value < req.body.normalmin) ? 'low' : 'undetermined'
+                                    }},
+                                      {new: true},
+                                       function (err, testresult) {
+                                                if (err) {
+                                                    winston.error(`${err.status || 500} - error while updating test results - ${err.message} - ${req.originalUrl} - ${req.method} - ${req.ip}`);
+            
+                                                    return next(err);
+                                                }
+                                                if(testresult) {
+                                                    response.status=200;
+                                                    response.message = 'test result updated';
+                                                    response.messagecode = 2006;
+                                                    response.TestResult = testresult;
+                                                    response.token=null;
+                                                    }
+                                                    else {
+                                                        response.status=200;
+                                                        response.message = 'test result not found';
+                                                        response.messagecode = 2007;
+                                                        response.TestResult = null;
+                                                        response.token=null;
+                                                    }        
+                                                    res.status(response.status).send(response);
+            
+                                            })
+            
+                            } else {
+                                    Test.findOne({"testname": req.body.testname,
+                                    "testagemin": {$lte: userageontest},
+                                    "testagemax": {$gte: userageontest},
+                                    "testgender":"UNISEX",
+                                    "countrycode": 0
+                                        }, function (err, testunigeneric) {
+                                            if (err) {
+                                                winston.error(`${err.status || 500} - error while finding test by name - ${err.message} - ${req.originalUrl} - ${req.method} - ${req.ip}`);
+                
+                                                return next(err);
+                                            }
+                
+                                            if(testunigeneric) {
+                                                winston.info(`found testunigeneric by name - ${testunigeneric} - ${req.originalUrl} - ${req.method} - ${req.ip}`);
+                
+                                                testfound = testunigeneric;
+
+                                                TestResult.findOneAndUpdate({"mobile": req.body.mobile, "countrycode": req.body.countrycode,
+                                                        "testdate": req.body.testdate, "testname": req.body.testname},
+                                                      {$set: {value: req.body.value, ageontest: req.body.age, notes: req.body.notes,
+                                                        normalmin:testfound.normalmin,
+                                                        normalmax:testfound.normalmax,
+                                                        normalcomparator:testfound.normalcomparator,
+                                                        result: ((req.body.value >= testfound.normalmin) && (req.body.value <= testfound.normalmax)) ? 'normal'
+                                                                     : (req.body.value > req.body.normalmax) ? 'high'
+                                                                     : (req.body.value < req.body.normalmin) ? 'low' : 'undetermined'
+                                                    }},
+                                                      {new: true},
+                                                       function (err, testresult) {
+                                                                if (err) {
+                                                                    winston.error(`${err.status || 500} - error while updating test results - ${err.message} - ${req.originalUrl} - ${req.method} - ${req.ip}`);
+                            
+                                                                    return next(err);
+                                                                }
+                                                                if(testresult) {
+                                                                    response.status=200;
+                                                                    response.message = 'test result updated';
+                                                                    response.messagecode = 2006;
+                                                                    response.TestResult = testresult;
+                                                                    response.token=null;
+                                                                    }
+                                                                    else {
+                                                                        response.status=200;
+                                                                        response.message = 'test result not found';
+                                                                        response.messagecode = 2007;
+                                                                        response.TestResult = null;
+                                                                        response.token=null;
+                                                                    }        
+                                                                    res.status(response.status).send(response);
+                            
+                                                            })
+                            
+                                            }   
+                                })//end of Test findOne for uni and generic
+                            }
+                        }) //end of Test findOne for gender and generic
                     }
-                })
+                }) //end of Test findOne for uni and country
+                }
+            }) //end of Test findOne for gender and country
+
             }
         })
 };

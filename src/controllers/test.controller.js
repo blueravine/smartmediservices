@@ -24,7 +24,8 @@ req.body.forEach(element => {
             normalmax:element.normalmax,
             normalcomparator:element.normalcomparator,
             categoryid: element.categoryid,
-            category: element.category
+            category: element.category,
+            notes: element.notes
         });
 
         test.save(function (err) {
@@ -132,25 +133,127 @@ exports.test_update_byname = function (req, res, next) {
     Test.findOneAndUpdate({"testname": req.body.name,
                             "testagemin": {$lte: req.body.age},
                             "testagemax": {$gte: req.body.age},
-                            $and:[{$or:[{"testgender": req.body.gender},{"testgender":"UNISEX"}]},
-                            {$or: [{"countrycode": req.body.countrycode},{"countrycode": 0}]}]
+                            "testgender": req.body.gender,
+                            "countrycode": req.body.countrycode
                           },
                           {$set: req.body},
                           {new: true},
-        function (err, test) {
+        function (err, testgendercountry) {
                 if (err) {
                     winston.error(`${err.status || 500} - error while updating test - ${err.message} - ${req.originalUrl} - ${req.method} - ${req.ip}`);
 
                     return next(err);
                 }
-                if(test) {
+                if(testgendercountry) {
                     response.status=200;
                     response.message = 'test updated';
                     response.messagecode = 3004;
-                    response.Test = test;
+                    response.Test = testgendercountry;
                     response.token=null;
                     }
                     else {
+
+                        Test.findOneAndUpdate({"testname": req.body.name,
+                                            "testagemin": {$lte: req.body.age},
+                                            "testagemax": {$gte: req.body.age},
+                                            "testgender":"UNISEX",
+                                            "countrycode": req.body.countrycode
+                                            },
+                                            {$set: req.body},
+                                            {new: true},
+                            function (err, testunicountry) {
+                                    if (err) {
+                                        winston.error(`${err.status || 500} - error while updating test - ${err.message} - ${req.originalUrl} - ${req.method} - ${req.ip}`);
+
+                                        return next(err);
+                                    }
+                                    if(testunicountry) {
+                                        response.status=200;
+                                        response.message = 'test updated';
+                                        response.messagecode = 3004;
+                                        response.Test = testunicountry;
+                                        response.token=null;
+                                        }
+                                        else {
+
+                                            Test.findOneAndUpdate({"testname": req.body.name,
+                                                                "testagemin": {$lte: req.body.age},
+                                                                "testagemax": {$gte: req.body.age},
+                                                                "testgender": req.body.gender,
+                                                                "countrycode": 0
+                                                            },
+                                                            {$set: req.body},
+                                                            {new: true},
+                                            function (err, testgendergeneric) {
+                                                    if (err) {
+                                                        winston.error(`${err.status || 500} - error while updating test - ${err.message} - ${req.originalUrl} - ${req.method} - ${req.ip}`);
+                                    
+                                                        return next(err);
+                                                    }
+                                                    if(test) {
+                                                        response.status=200;
+                                                        response.message = 'test updated';
+                                                        response.messagecode = 3004;
+                                                        response.Test = testgendergeneric;
+                                                        response.token=null;
+                                                        }
+                                                        else {
+                                    
+                                                            Test.findOneAndUpdate({"testname": req.body.name,
+                                                                                "testagemin": {$lte: req.body.age},
+                                                                                "testagemax": {$gte: req.body.age},
+                                                                                "testgender":"UNISEX",
+                                                                                "countrycode": 0
+                                                                            },
+                                                                            {$set: req.body},
+                                                                            {new: true},
+                                                            function (err, testunigeneric) {
+                                                                    if (err) {
+                                                                        winston.error(`${err.status || 500} - error while updating test - ${err.message} - ${req.originalUrl} - ${req.method} - ${req.ip}`);
+                                                    
+                                                                        return next(err);
+                                                                    }
+                                                                    if(testunigeneric) {
+                                                                        response.status=200;
+                                                                        response.message = 'test updated';
+                                                                        response.messagecode = 3004;
+                                                                        response.Test = testunigeneric;
+                                                                        response.token=null;
+                                                                        }
+                                                                        else {
+                                                    
+                                                    
+                                                    
+                                                                            response.status=200;
+                                                                            response.message = 'test not found';
+                                                                            response.messagecode = 3005;
+                                                                            response.Test = null;
+                                                                            response.token=null;
+                                                                        }        
+                                                    
+                                                                        res.status(response.status).send(response);
+                                                            })
+                                    
+                                                            response.status=200;
+                                                            response.message = 'test not found';
+                                                            response.messagecode = 3005;
+                                                            response.Test = null;
+                                                            response.token=null;
+                                                        }        
+                                    
+                                                        res.status(response.status).send(response);
+                                            })
+
+                                            response.status=200;
+                                            response.message = 'test not found';
+                                            response.messagecode = 3005;
+                                            response.Test = null;
+                                            response.token=null;
+                                        }        
+
+                                        res.status(response.status).send(response);
+                            })
+
                         response.status=200;
                         response.message = 'test not found';
                         response.messagecode = 3005;
@@ -169,23 +272,117 @@ exports.test_delete_byname = function (req, res, next) {
     Test.findOneAndDelete({"testname": req.body.name,
                             "testagemin": {$lte: req.body.age},
                             "testagemax": {$gte: req.body.age},
-                            $and:[{$or:[{"testgender": req.body.gender},{"testgender":"UNISEX"}]},
-                            {$or: [{"countrycode": req.body.countrycode},{"countrycode": 0}]}]
+                            "testgender": req.body.gender,
+                            "countrycode": req.body.countrycode
                           },
-        function (err, test) {
+        function (err, testgendercountry) {
                 if (err) {
                     winston.error(`${err.status || 500} - error while deleting test - ${err.message} - ${req.originalUrl} - ${req.method} - ${req.ip}`);
 
                     return next(err);
                 }
-                if(test) {
+                if(testgendercountry) {
                     response.status=200;
                     response.message = 'test deleted';
                     response.messagecode = 3005;
-                    response.Test = test;
+                    response.Test = testgendercountry;
                     response.token=null;
                     }
                     else {
+
+                        Test.findOneAndDelete({"testname": req.body.name,
+                                                "testagemin": {$lte: req.body.age},
+                                                "testagemax": {$gte: req.body.age},
+                                                "testgender":"UNISEX",
+                                                "countrycode": req.body.countrycode
+                                            },
+                            function (err, testunicountry) {
+                                    if (err) {
+                                        winston.error(`${err.status || 500} - error while deleting test - ${err.message} - ${req.originalUrl} - ${req.method} - ${req.ip}`);
+
+                                        return next(err);
+                                    }
+                                    if(testunicountry) {
+                                        response.status=200;
+                                        response.message = 'test deleted';
+                                        response.messagecode = 3005;
+                                        response.Test = testunicountry;
+                                        response.token=null;
+                                        }
+                                        else {
+
+                                            Test.findOneAndDelete({"testname": req.body.name,
+                                                                    "testagemin": {$lte: req.body.age},
+                                                                    "testagemax": {$gte: req.body.age},
+                                                                    "testgender": req.body.gender,
+                                                                    "countrycode": 0
+                                                                },
+                                                function (err, testgendergeneric) {
+                                                        if (err) {
+                                                            winston.error(`${err.status || 500} - error while deleting test - ${err.message} - ${req.originalUrl} - ${req.method} - ${req.ip}`);
+                                        
+                                                            return next(err);
+                                                        }
+                                                        if(testgendergeneric) {
+                                                            response.status=200;
+                                                            response.message = 'test deleted';
+                                                            response.messagecode = 3005;
+                                                            response.Test = testgendergeneric;
+                                                            response.token=null;
+                                                            }
+                                                            else {
+                                        
+                                                                Test.findOneAndDelete({"testname": req.body.name,
+                                                                                        "testagemin": {$lte: req.body.age},
+                                                                                        "testagemax": {$gte: req.body.age},
+                                                                                        "testgender":"UNISEX",
+                                                                                        "countrycode": 0
+                                                                                    },
+                                                                    function (err, testunigeneric) {
+                                                                            if (err) {
+                                                                                winston.error(`${err.status || 500} - error while deleting test - ${err.message} - ${req.originalUrl} - ${req.method} - ${req.ip}`);
+                                                            
+                                                                                return next(err);
+                                                                            }
+                                                                            if(testunigeneric) {
+                                                                                response.status=200;
+                                                                                response.message = 'test deleted';
+                                                                                response.messagecode = 3005;
+                                                                                response.Test = testunigeneric;
+                                                                                response.token=null;
+                                                                                }
+                                                                                else {
+                                                            
+                                                                                    
+                                                                                    response.status=200;
+                                                                                    response.message = 'test not found';
+                                                                                    response.messagecode = 3006;
+                                                                                    response.Test = null;
+                                                                                    response.token=null;
+                                                                                }        
+                                                            
+                                                                                res.status(response.status).send(response);
+                                                                    })
+                                                                
+                                                                response.status=200;
+                                                                response.message = 'test not found';
+                                                                response.messagecode = 3006;
+                                                                response.Test = null;
+                                                                response.token=null;
+                                                            }        
+                                        
+                                                            res.status(response.status).send(response);
+                                                })
+                                            response.status=200;
+                                            response.message = 'test not found';
+                                            response.messagecode = 3006;
+                                            response.Test = null;
+                                            response.token=null;
+                                        }        
+
+                                        res.status(response.status).send(response);
+                            })
+
                         response.status=200;
                         response.message = 'test not found';
                         response.messagecode = 3006;

@@ -15,13 +15,16 @@ var testSchema = new Schema({
     normalcomparator:{type: String, required: false},
     categoryid: {type: Number, required: false},
     category: {type: String, required: false},
+    notes: {type: String, required: false},
     createddate: {type: Date, default: Date.now}
 });
 
 testSchema.pre('save', function (next) {
     var self = this;
     Test.find({countrycode: self.countrycode,
-                     testname: self.testname}, function (err, testdoc) {
+                     testname: self.testname,
+                    testagemin: self.testagemin,
+                testagemax: self.testagemax}, function (err, testdoc) {
         if (!testdoc.length){
             next();
         }else{
