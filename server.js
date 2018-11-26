@@ -18,6 +18,9 @@ const test = require('./src/routes/test.route');
 //Import routes for the alert
 const alert = require('./src/routes/alert.route');
 
+//Import routes for the feedback
+const feedback = require('./src/routes/feedback.route');
+
 //initial smartmedi services api
 const app = express();
 
@@ -66,7 +69,9 @@ app.use(smartjwt.getToken.unless({
                 '/testresult/test',
                 '/test/register',
                 '/test/name',
-                '/test'
+                '/test',
+                '/feedback/test',
+                '/feedback/register'
             ]
         }));
 
@@ -99,7 +104,9 @@ app.use(verifyToken.unless({
             '/testresult/test',
             '/test/register',
             '/test/name',
-            '/test'
+            '/test',
+            '/feedback/test',
+            '/feedback/register'
         ]
     })
 );
@@ -109,6 +116,7 @@ app.use('/user', user);
 app.use('/testresult', testresult);
 app.use('/test', test);
 app.use('/alert', alert);
+app.use('/feedback', feedback);
 
 app.use(function (req, res, next) {
     winston.info(`'Cannot find RESTful resource!' - ${req.originalUrl} - ${req.method} - ${req.ip}`);
