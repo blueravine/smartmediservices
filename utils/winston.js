@@ -5,6 +5,8 @@ const config = require('../config.json');
 
 var environment = process.env.NODE_ENV || config.NODE_ENV || 'development';
 
+console.log(`${appRoot}` + ': appRoot');
+
 // define the custom settings for each transport (file, console)
 var options = {
   file: {
