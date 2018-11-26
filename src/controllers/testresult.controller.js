@@ -35,9 +35,10 @@ req.body.forEach((element) => {
         if(user){
             winston.info(`user found: ${user} age: ${user.age} gender: ${user.gender} - ${req.originalUrl} - ${req.method} - ${req.ip}`);
 
+            let userageontest = (element.age ? element.age : user.age);
             Test.findOne({"testname": element.testname,
-                            "testagemin": {$lte: user.age},
-                            "testagemax": {$gte: user.age},
+                            "testagemin": {$lte: userageontest},
+                            "testagemax": {$gte: userageontest},
                             $and:[{$or:[{"testgender": user.gender},{"testgender":"UNISEX"}]},
                             {$or: [{"countrycode": element.countrycode},{"countrycode": 0}]}]
             }, function (err, test) {
@@ -155,34 +156,68 @@ exports.testresults_bymobile = function (req, res, next) {
 exports.testresults_update_bymobile = function (req, res, next) {
     winston.info(`updating test results by mobile: ${req.body.mobile} countrycode: ${req.body.countrycode} testdate: ${req.body.testdate} testname: ${req.body.testname} - ${req.originalUrl} - ${req.method} - ${req.ip}`);
 
-    
-    TestResult.findOneAndUpdate({"mobile": req.body.mobile, "countrycode": req.body.countrycode,
-                            "testdate": req.body.testdate, "testname": req.body.testname},
-                          {$set: {value: req.body.value, ageontest: req.body.age, notes: req.body.notes}},
-                          {new: true},
-                           function (err, testresult) {
-        if (err) {
-            winston.error(`${err.status || 500} - error while updating test results - ${err.message} - ${req.originalUrl} - ${req.method} - ${req.ip}`);
-
+    User.findOne({"mobile": req.body.mobile, "countrycode": req.body.countrycode}, function(err, user) {
+        if(err){
+            winston.error(`${err.status || 500} - error while finding test - ${err.message} - ${req.originalUrl} - ${req.method} - ${req.ip}`);
             return next(err);
         }
-        if(testresult) {
-            response.status=200;
-            response.message = 'test result updated';
-            response.messagecode = 2006;
-            response.TestResult = testresult;
-            response.token=null;
-            }
-            else {
-                response.status=200;
-                response.message = 'test result not found';
-                response.messagecode = 2007;
-                response.TestResult = null;
-                response.token=null;
-            }        
+        if(user){
+            winston.info(`user found: ${user} age: ${user.age} gender: ${user.gender} - ${req.originalUrl} - ${req.method} - ${req.ip}`);
 
-            res.status(response.status).send(response);
-    })
+            let userageontest = (req.body.age ? req.body.age : user.age);
+            Test.findOne({"testname": req.body.testname,
+                            "testagemin": {$lte: userageontest},
+                            "testagemax": {$gte: userageontest},
+                            $and:[{$or:[{"testgender": user.gender},{"testgender":"UNISEX"}]},
+                            {$or: [{"countrycode": req.body.countrycode},{"countrycode": 0}]}]
+            }, function (err, test) {
+                if (err) {
+                    winston.error(`${err.status || 500} - error while finding test by name - ${err.message} - ${req.originalUrl} - ${req.method} - ${req.ip}`);
+
+                    return next(err);
+                }
+
+                if(test) {
+                    winston.info(`found test by name - ${req.originalUrl} - ${req.method} - ${req.ip}`);
+
+                    TestResult.findOneAndUpdate({"mobile": req.body.mobile, "countrycode": req.body.countrycode,
+                            "testdate": req.body.testdate, "testname": req.body.testname},
+                          {$set: {value: req.body.value, ageontest: req.body.age, notes: req.body.notes,
+                            normalmin:test.normalmin,
+                            normalmax:test.normalmax,
+                            normalcomparator:test.normalcomparator,
+                            result: ((req.body.value >= test.normalmin) && (req.body.value <= test.normalmax)) ? 'normal'
+                                         : (req.body.value > req.body.normalmax) ? 'high'
+                                         : (req.body.value < req.body.normalmin) ? 'low' : 'undetermined'
+                        }},
+                          {new: true},
+                           function (err, testresult) {
+                                    if (err) {
+                                        winston.error(`${err.status || 500} - error while updating test results - ${err.message} - ${req.originalUrl} - ${req.method} - ${req.ip}`);
+
+                                        return next(err);
+                                    }
+                                    if(testresult) {
+                                        response.status=200;
+                                        response.message = 'test result updated';
+                                        response.messagecode = 2006;
+                                        response.TestResult = testresult;
+                                        response.token=null;
+                                        }
+                                        else {
+                                            response.status=200;
+                                            response.message = 'test result not found';
+                                            response.messagecode = 2007;
+                                            response.TestResult = null;
+                                            response.token=null;
+                                        }        
+
+                                        res.status(response.status).send(response);
+                                })
+                    }
+                })
+            }
+        })
 };
 
 exports.testresults_delete_bymobile = function (req, res, next) {
