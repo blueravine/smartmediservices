@@ -53,7 +53,7 @@ exports.secretquestion_retrieve = function (req, res, next) {
                             return next(err);
                         }
     
-                        if(test) {
+                        if(secretquestion) {
                             winston.info(`found all secret questions - ${req.originalUrl} - ${req.method} - ${req.ip}`);
     
                         response.status=200;
