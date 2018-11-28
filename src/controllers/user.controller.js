@@ -109,6 +109,8 @@ exports.user_update_password = function (req, res, next) {
                 response.User = req.body.mobile;
                 response.token = null;
 
+                res.status(response.status).send(response);
+
             }
         }
     });
