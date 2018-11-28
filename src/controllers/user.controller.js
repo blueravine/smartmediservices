@@ -40,7 +40,7 @@ exports.user_create = function (req, res, next) {
         age: req.body.age,
         gender: req.body.gender,
         secretquestionid: req.body.secretquestionid,
-        secretanswer: bcrypt.hashSync(req.body.secretanswer, 10)
+        secretanswerhash: bcrypt.hashSync(req.body.secretanswer, 10)
     });
 
     user.save(function (err) {
@@ -51,7 +51,7 @@ exports.user_create = function (req, res, next) {
         winston.info(`user created - ${req.originalUrl} - ${req.method} - ${req.ip}`);
         response.message = 'user created';
         response.messagecode = 1002;
-        let {password_hash, secretanswer, ...withouthashes} = user.toObject();
+        let {password_hash, secretanswerhash, ...withouthashes} = user.toObject();
         response.status=200;
         response.User = withouthashes;
         response.token = null;
@@ -99,7 +99,7 @@ exports.user_update_password = function (req, res, next) {
                         }        
 
                         res.status(response.status).send(response);
-                        }).select('-password_hash -secretanswer')
+                        }).select('-password_hash -secretanswerhash')
             }
             else {
                 winston.info(`secretanswer invalid - ${req.originalUrl} - ${req.method} - ${req.ip}`);
@@ -129,7 +129,7 @@ exports.user_authenticate = function (req, res, next) {
             winston.info(`user found authenticating - ${req.originalUrl} - ${req.method} - ${req.ip}`);
 
             if(bcrypt.compareSync(req.body.password, user.password_hash)){
-                let {password_hash, secretanswer, ...withouthashes} = user.toObject();
+                let {password_hash, secretanswerhash, ...withouthashes} = user.toObject();
                 signOptions.subject=req.body.countrycode + '-' + req.body.mobile;
                 signOptions.audience=req.body.jwtaudience;
                 let token = smartjwt.sign({mobile: req.body.mobile, countrycode: req.body.countrycode},signOptions);
@@ -171,7 +171,7 @@ exports.user_authenticate = function (req, res, next) {
                 winston.info(`user found authenticating - ${req.originalUrl} - ${req.method} - ${req.ip}`);
     
                 if(bcrypt.compareSync(req.body.password, user.password_hash)){
-                    let {password_hash, secretanswer, ...withouthashes} = user.toObject();
+                    let {password_hash, secretanswerhash, ...withouthashes} = user.toObject();
                     signOptions.subject=user.countrycode + '-' + user.mobile;
                     signOptions.audience=req.body.jwtaudience;
                     let token = smartjwt.sign({mobile: req.body.mobile, countrycode: req.body.countrycode},signOptions);
@@ -231,7 +231,7 @@ exports.user_details = function (req, res, next) {
             response.status=200;
             response.message = 'user found';
             response.messagecode = 1007;
-            let {password_hash, secretanswer, ...withouthashes} = user.toObject();
+            let {password_hash, secretanswerhash, ...withouthashes} = user.toObject();
             response.User = withouthashes;
             response.token=null;
             }
@@ -243,7 +243,7 @@ exports.user_details = function (req, res, next) {
             response.token=null;
         }
         res.status(response.status).send(response);
-    }).select('-password_hash -secretanswer')
+    }).select('-password_hash -secretanswerhash')
 };
 
 exports.user_details_bymobile = function (req, res, next) {
@@ -272,7 +272,7 @@ exports.user_details_bymobile = function (req, res, next) {
                         response.token=null;
                     }
                     res.status(response.status).send(response);
-                }).select('-password_hash -secretanswer')
+                }).select('-password_hash -secretanswerhash')
 };
 
 exports.user_update_bymobile = function (req, res, next) {
@@ -304,5 +304,5 @@ exports.user_update_bymobile = function (req, res, next) {
             }        
 
             res.status(response.status).send(response);
-    }).select('-password_hash -secretanswer')
+    }).select('-password_hash -secretanswerhash')
 };
