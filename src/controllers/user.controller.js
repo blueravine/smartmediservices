@@ -73,7 +73,7 @@ exports.user_update_password = function (req, res, next) {
         if(user) {
             winston.info(`user found authenticating before setting new password - ${req.originalUrl} - ${req.method} - ${req.ip}`);
 
-            if(bcrypt.compareSync(req.body.secretanswer, user.secretanswer)){
+            if(bcrypt.compareSync(req.body.secretanswer, user.secretanswerhash)){
                     User.findOneAndUpdate({"mobile": req.body.mobile, "countrycode": req.body.countrycode},
                     {$set: {"password_hash":bcrypt.hashSync(req.body.password, 10)}},
                     {new: true},
