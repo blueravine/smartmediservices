@@ -13,6 +13,8 @@ var userSchema = new Schema({
     email: {type: String, required: false},
     age: {type: Number, required: false},
     gender:{type: String, required: false},
+    secretquestionid:{type: Number, required: false},
+    secretanswerhash: {type: String, required: true},
     createddate: {type: Date, default: Date.now}
 });
 

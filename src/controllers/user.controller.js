@@ -39,6 +39,8 @@ exports.user_create = function (req, res, next) {
         username: req.body.username,
         age: req.body.age,
         gender: req.body.gender,
+        secretquestionid: req.body.secretquestionid,
+        secretanswer: bcrypt.hashSync(req.body.secretanswer, 10)
     });
 
     user.save(function (err) {
@@ -49,9 +51,9 @@ exports.user_create = function (req, res, next) {
         winston.info(`user created - ${req.originalUrl} - ${req.method} - ${req.ip}`);
         response.message = 'user created';
         response.messagecode = 1002;
-        let {password_hash, ...withoutpwdhash} = user.toObject();
+        let {password_hash, secretanswer, ...withouthashes} = user.toObject();
         response.status=200;
-        response.User = withoutpwdhash;
+        response.User = withouthashes;
         response.token = null;
         res.status(response.status).send(response);
     })
@@ -61,37 +63,61 @@ exports.user_create = function (req, res, next) {
 exports.user_update_password = function (req, res, next) {
     winston.info(`updating password for user - ${req.originalUrl} - ${req.method} - ${req.ip}`);
 
-        User.findOneAndUpdate({"mobile": req.body.mobile, "countrycode": req.body.countrycode},
-        {$set: {"password_hash":bcrypt.hashSync(req.body.password, 10)}},
-        {new: true},
-        function (err, user) {
-            if (err) {
-                winston.error(`${err.status || 500} - error while updating password - ${err.message} - ${req.originalUrl} - ${req.method} - ${req.ip}`);
-                return next(err); 
-            }
-            if(user) {
-                winston.info(`user updated: ${user} - ${req.originalUrl} - ${req.method} - ${req.ip}`);
-                response.status=200;
-                response.message = 'user updated';
-                response.messagecode = 1009;
-                response.User = user;
-                response.token=null;
+    User.findOne({"mobile": req.body.mobile, "countrycode": req.body.countrycode}, function (err, user) {
+        if (err) {
+            winston.error(`${err.status || 500} - error while authenticating user - ${err.message} - ${req.originalUrl} - ${req.method} - ${req.ip}`);
+
+            return next(err);
+        }
+
+        if(user) {
+            winston.info(`user found authenticating before setting new password - ${req.originalUrl} - ${req.method} - ${req.ip}`);
+
+            if(bcrypt.compareSync(req.body.secretanswer, user.secretanswer)){
+                    User.findOneAndUpdate({"mobile": req.body.mobile, "countrycode": req.body.countrycode},
+                    {$set: {"password_hash":bcrypt.hashSync(req.body.password, 10)}},
+                    {new: true},
+                    function (err, user) {
+                        if (err) {
+                            winston.error(`${err.status || 500} - error while updating password - ${err.message} - ${req.originalUrl} - ${req.method} - ${req.ip}`);
+                            return next(err); 
+                        }
+                        if(user) {
+                            winston.info(`user updated: ${user} - ${req.originalUrl} - ${req.method} - ${req.ip}`);
+                            response.status=200;
+                            response.message = 'user updated';
+                            response.messagecode = 1009;
+                            response.User = user;
+                            response.token=null;
+                        }
+                        else {
+                            response.status=200;
+                            response.message = 'user not found';
+                            response.messagecode = 1005;
+                            response.User = null;
+                            response.token=null;
+                        }        
+
+                        res.status(response.status).send(response);
+                        }).select('-password_hash -secretanswer')
             }
             else {
+                winston.info(`secretanswer invalid - ${req.originalUrl} - ${req.method} - ${req.ip}`);
                 response.status=200;
-                response.message = 'user not found';
-                response.messagecode = 1005;
-                response.User = null;
-                response.token=null;
-            }        
+                response.message = 'Answer to secret question not correct.';
+                response.messagecode = 1010;
+                response.User = req.body.mobile;
+                response.token = null;
 
-            res.status(response.status).send(response);
-            }).select('-password_hash')
+            }
+        }
+    });
 };
 
 exports.user_authenticate = function (req, res, next) {
     winston.info(`authenticating user - ${req.originalUrl} - ${req.method} - ${req.ip}`);
 
+    if(req.body.mobile){
     User.findOne({"mobile": req.body.mobile, "countrycode": req.body.countrycode}, function (err, user) {
         if (err) {
             winston.error(`${err.status || 500} - error while authenticating user - ${err.message} - ${req.originalUrl} - ${req.method} - ${req.ip}`);
@@ -103,7 +129,7 @@ exports.user_authenticate = function (req, res, next) {
             winston.info(`user found authenticating - ${req.originalUrl} - ${req.method} - ${req.ip}`);
 
             if(bcrypt.compareSync(req.body.password, user.password_hash)){
-                let {password_hash, ...withoutpwdhash} = user.toObject();
+                let {password_hash, secretanswer, ...withouthashes} = user.toObject();
                 signOptions.subject=req.body.countrycode + '-' + req.body.mobile;
                 signOptions.audience=req.body.jwtaudience;
                 let token = smartjwt.sign({mobile: req.body.mobile, countrycode: req.body.countrycode},signOptions);
@@ -111,7 +137,7 @@ exports.user_authenticate = function (req, res, next) {
                 response.status=200;
                 response.message = 'user authenticated';
                 response.messagecode = 1003;
-                response.User = withoutpwdhash;
+                response.User = withouthashes;
                 response.token = token;
             }
             else {
@@ -133,6 +159,49 @@ exports.user_authenticate = function (req, res, next) {
         }
         res.status(response.status).send(response);
     })
+    } else if(req.body.username){
+        User.findOne({"username": req.body.username}, function (err, user) {
+            if (err) {
+                winston.error(`${err.status || 500} - error while authenticating user - ${err.message} - ${req.originalUrl} - ${req.method} - ${req.ip}`);
+    
+                return next(err);
+            }
+    
+            if(user) {
+                winston.info(`user found authenticating - ${req.originalUrl} - ${req.method} - ${req.ip}`);
+    
+                if(bcrypt.compareSync(req.body.password, user.password_hash)){
+                    let {password_hash, secretanswer, ...withouthashes} = user.toObject();
+                    signOptions.subject=user.countrycode + '-' + user.mobile;
+                    signOptions.audience=req.body.jwtaudience;
+                    let token = smartjwt.sign({mobile: req.body.mobile, countrycode: req.body.countrycode},signOptions);
+                    winston.info(`user authenticated - ${req.originalUrl} - ${req.method} - ${req.ip}`);
+                    response.status=200;
+                    response.message = 'user authenticated';
+                    response.messagecode = 1003;
+                    response.User = withouthashes;
+                    response.token = token;
+                }
+                else {
+                    winston.info(`password invalid - ${req.originalUrl} - ${req.method} - ${req.ip}`);
+                    response.status=200;
+                    response.message = 'user authentication failed';
+                    response.messagecode = 1004;
+                    response.User = req.body.mobile;
+                    response.token = null;
+                }
+    
+            }
+            else {
+                response.status=200;
+                response.message = 'user not found';
+                response.messagecode = 1005;
+                response.User = req.body.mobile;
+                response.token = null;
+            }
+            res.status(response.status).send(response);
+        })
+    }
 };
 
 exports.user_verify_token = function (req, res, next) {
@@ -162,8 +231,8 @@ exports.user_details = function (req, res, next) {
             response.status=200;
             response.message = 'user found';
             response.messagecode = 1007;
-            let {password_hash, ...withoutpwdhash} = user.toObject();
-            response.User = withoutpwdhash;
+            let {password_hash, secretanswer, ...withouthashes} = user.toObject();
+            response.User = withouthashes;
             response.token=null;
             }
         else {
@@ -174,7 +243,7 @@ exports.user_details = function (req, res, next) {
             response.token=null;
         }
         res.status(response.status).send(response);
-    }).select('-password_hash')
+    }).select('-password_hash -secretanswer')
 };
 
 exports.user_details_bymobile = function (req, res, next) {
@@ -203,7 +272,7 @@ exports.user_details_bymobile = function (req, res, next) {
                         response.token=null;
                     }
                     res.status(response.status).send(response);
-                }).select('-password_hash')
+                }).select('-password_hash -secretanswer')
 };
 
 exports.user_update_bymobile = function (req, res, next) {
@@ -235,5 +304,5 @@ exports.user_update_bymobile = function (req, res, next) {
             }        
 
             res.status(response.status).send(response);
-    }).select('-password_hash')
+    }).select('-password_hash -secretanswer')
 };

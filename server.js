@@ -21,6 +21,9 @@ const alert = require('./src/routes/alert.route');
 //Import routes for the feedback
 const feedback = require('./src/routes/feedback.route');
 
+//Import routes for the secret questions
+const secretquestions = require('./src/routes/secretquestion.route');
+
 //initial smartmedi services api
 const app = express();
 
@@ -71,7 +74,10 @@ app.use(smartjwt.getToken.unless({
                 '/test/name',
                 '/test',
                 '/feedback/test',
-                '/feedback/register'
+                '/feedback/register',
+                '/secretquestions/test',
+                '/secretquestions/register',
+                '/secretquestions/retrieve'
             ]
         }));
 
@@ -106,7 +112,10 @@ app.use(verifyToken.unless({
             '/test/name',
             '/test',
             '/feedback/test',
-            '/feedback/register'
+            '/feedback/register',
+            '/secretquestions/test',
+            '/secretquestions/register',
+            '/secretquestions/retrieve'
         ]
     })
 );
@@ -117,6 +126,7 @@ app.use('/testresult', testresult);
 app.use('/test', test);
 app.use('/alert', alert);
 app.use('/feedback', feedback);
+app.use('/secretquestions', secretquestions);
 
 app.use(function (req, res, next) {
     winston.info(`'Cannot find RESTful resource!' - ${req.originalUrl} - ${req.method} - ${req.ip}`);
