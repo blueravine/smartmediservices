@@ -379,8 +379,8 @@ exports.testresults_update_bymobile = function (req, res, next) {
                             normalmax:testfound.normalmax,
                             normalcomparator:testfound.normalcomparator,
                             result: ((req.body.value >= testfound.normalmin) && (req.body.value <= testfound.normalmax)) ? 'normal'
-                                         : (req.body.value > req.body.normalmax) ? 'high'
-                                         : (req.body.value < req.body.normalmin) ? 'low' : 'undetermined'
+                                         : (req.body.value > testfound.normalmax) ? 'high'
+                                         : (req.body.value < testfound.normalmin) ? 'low' : 'undetermined'
                         }},
                           {new: true},
                            function (err, testresult) {
@@ -434,8 +434,8 @@ exports.testresults_update_bymobile = function (req, res, next) {
                                             normalmax:testfound.normalmax,
                                             normalcomparator:testfound.normalcomparator,
                                             result: ((req.body.value >= testfound.normalmin) && (req.body.value <= testfound.normalmax)) ? 'normal'
-                                                         : (req.body.value > req.body.normalmax) ? 'high'
-                                                         : (req.body.value < req.body.normalmin) ? 'low' : 'undetermined'
+                                                         : (req.body.value > testfound.normalmax) ? 'high'
+                                                         : (req.body.value < testfound.normalmin) ? 'low' : 'undetermined'
                                         }},
                                           {new: true},
                                            function (err, testresult) {
@@ -489,8 +489,8 @@ exports.testresults_update_bymobile = function (req, res, next) {
                                         normalmax:testfound.normalmax,
                                         normalcomparator:testfound.normalcomparator,
                                         result: ((req.body.value >= testfound.normalmin) && (req.body.value <= testfound.normalmax)) ? 'normal'
-                                                     : (req.body.value > req.body.normalmax) ? 'high'
-                                                     : (req.body.value < req.body.normalmin) ? 'low' : 'undetermined'
+                                                     : (req.body.value > testfound.normalmax) ? 'high'
+                                                     : (req.body.value < testfound.normalmin) ? 'low' : 'undetermined'
                                     }},
                                       {new: true},
                                        function (err, testresult) {
@@ -542,8 +542,8 @@ exports.testresults_update_bymobile = function (req, res, next) {
                                                         normalmax:testfound.normalmax,
                                                         normalcomparator:testfound.normalcomparator,
                                                         result: ((req.body.value >= testfound.normalmin) && (req.body.value <= testfound.normalmax)) ? 'normal'
-                                                                     : (req.body.value > req.body.normalmax) ? 'high'
-                                                                     : (req.body.value < req.body.normalmin) ? 'low' : 'undetermined'
+                                                                     : (req.body.value > testfound.normalmax) ? 'high'
+                                                                     : (req.body.value < testfound.normalmin) ? 'low' : 'undetermined'
                                                     }},
                                                       {new: true},
                                                        function (err, testresult) {
