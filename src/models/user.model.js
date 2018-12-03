@@ -15,6 +15,7 @@ var userSchema = new Schema({
     gender:{type: String, required: false},
     secretquestionid:{type: Number, required: false},
     secretanswerhash: {type: String, required: true},
+    role: {type: String, default: 'consumer', enum:['consumer','labtech','doctor']},
     createddate: {type: Date, default: Date.now}
 });
 
@@ -28,7 +29,7 @@ userSchema.pre('save', function (next) {
             next(new Error("User Already exists!"));
         }
     });
-}) ;
+});
 
 userSchema.pre('save', function (next) {
     var self = this;
@@ -40,7 +41,7 @@ userSchema.pre('save', function (next) {
             next(new Error("UserName Already exists!"));
         }
     });
-}) ;
+});
 
 var User = mongoose.model('User', userSchema);
 module.exports = User;

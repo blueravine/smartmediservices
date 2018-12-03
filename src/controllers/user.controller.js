@@ -40,7 +40,8 @@ exports.user_create = function (req, res, next) {
         age: req.body.age,
         gender: req.body.gender,
         secretquestionid: req.body.secretquestionid,
-        secretanswerhash: bcrypt.hashSync(req.body.secretanswer, 10)
+        secretanswerhash: bcrypt.hashSync(req.body.secretanswer, 10),
+        role: req.body.role,
     });
 
     user.save(function (err) {
