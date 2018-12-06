@@ -135,6 +135,36 @@ exports.alert_update_bymobile = function (req, res, next) {
         })
 };
 
+exports.alert_retrieve_byid = function (req, res, next) {
+    winston.info(`retrieving alert by alert id. ${req.body.medicinealertid} for countrycode: ${req.headers.countrycode} mobile: ${req.headers.mobile} - ${req.originalUrl} - ${req.method} - ${req.ip}`);
+
+    
+    Alert.findOne({"mobile": req.headers.mobile, "countrycode": req.headers.countrycode, id: req.body.medicinealertid},
+         function (err, alert) {
+                if (err) {
+                    winston.error(`${err.status || 500} - error while retrieving alerts - ${err.message} - ${req.originalUrl} - ${req.method} - ${req.ip}`);
+
+                    return next(err);
+                }
+                if(alert) {
+                    response.status=200;
+                    response.message = 'alerts found';
+                    response.messagecode = 4002;
+                    response.Alert = alert;
+                    response.token=null;
+                    }
+                    else {
+                        response.status=200;
+                        response.message = 'alerts not found for mobile:'+ req.headers.mobile + ' and country code: ' + req.headers.countrycode;
+                        response.messagecode = 4003;
+                        response.Alert = null;
+                        response.token=null;
+                    }        
+
+                    res.status(response.status).send(response);
+        })
+};
+
 exports.alert_update_byid = function (req, res, next) {
     winston.info(`updating alert by alert id. ${req.body.medicinealertid} for countrycode: ${req.headers.countrycode} mobile: ${req.headers.mobile} - ${req.originalUrl} - ${req.method} - ${req.ip}`);
 
