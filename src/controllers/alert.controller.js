@@ -11,6 +11,7 @@ exports.register = function (req, res, next) {
 exports.alert_create = function (req, res, next) {
 
     winston.info(`creating alert ${JSON.stringify(req.body)} - ${req.originalUrl} - ${req.method} - ${req.ip}`);
+    let savedalert = [];
 
     async.each(req.body, function (element, callback) {
     
@@ -42,6 +43,8 @@ exports.alert_create = function (req, res, next) {
 
                 return next(err);
             }
+
+            savedalert.push(alert);
             callback();
         });
       
@@ -55,7 +58,7 @@ exports.alert_create = function (req, res, next) {
                     response.message = 'alerts  registered';
                     response.messagecode = 4001;
                     response.status=200;
-                    response.Alert = null;
+                    response.Alert = savedalert;
                     response.token = null;
                     return res.status(response.status).send(response);
                 }
