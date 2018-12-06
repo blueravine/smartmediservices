@@ -1,4 +1,5 @@
 const Alert = require('../models/alert.model');
+const TestResult = require('../models/testresult.model');
 const response = require('../schemas/api.response.alert');
 const winston = require('../../utils/winston');
 const async = require('async');
@@ -169,7 +170,7 @@ exports.alert_update_byid = function (req, res, next) {
     winston.info(`updating alert by alert id. ${req.body.medicinealertid} for countrycode: ${req.headers.countrycode} mobile: ${req.headers.mobile} - ${req.originalUrl} - ${req.method} - ${req.ip}`);
 
     
-    Alert.findOneAndUpdate({"mobile": req.headers.mobile, "countrycode": req.headers.countrycode, id: req.body.medicinealertid},
+    Alert.findOneAndUpdate({"mobile": req.headers.mobile, "countrycode": req.headers.countrycode, "id": req.body.medicinealertid},
                     {$set: req.body},
                     {new: true},
          function (err, alert) {
@@ -232,7 +233,7 @@ exports.alert_delete_byid = function (req, res, next) {
     winston.info(`deleting alert by alert id: ${req.body.medicinealertid} for countrycode: ${req.headers.countrycode} mobile: ${req.headers.mobile} - ${req.originalUrl} - ${req.method} - ${req.ip}`);
 
     
-    Alert.findOneAndDelete({"mobile": req.headers.mobile, "countrycode": req.headers.countrycode, id: req.body.medicinealertid},
+    Alert.findOneAndDelete({"mobile": req.headers.mobile, "countrycode": req.headers.countrycode, "id": req.body.medicinealertid},
          function (err, alert) {
                 if (err) {
                     winston.error(`${err.status || 500} - error while deleting alerts - ${err.message} - ${req.originalUrl} - ${req.method} - ${req.ip}`);
@@ -240,6 +241,16 @@ exports.alert_delete_byid = function (req, res, next) {
                     return next(err);
                 }
                 if(alert) {
+                    TestResult.findOneAndUpdate({"mobile": req.headers.mobile, "countrycode": req.headers.countrycode, "medicinealertid": req.body.medicinealertid},
+                    {$set: {"medicinealertid":null,"medicinestartdate":null,"medicineenddate":null,"medicinename":null,"medicinefrequency":null}},
+                    {new: true},
+                    function (err, testresult) {
+                        if (err) {
+                            winston.error(`${err.status || 500} - error while updating test results - ${err.message} - ${req.originalUrl} - ${req.method} - ${req.ip}`);
+                            return next(err);
+                        }
+                    });
+
                     response.status=200;
                     response.message = 'alert deleted';
                     response.messagecode = 4006;
