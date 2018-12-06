@@ -1,9 +1,12 @@
 const User = require('../models/user.model');
 const Test = require('../models/test.model');
 const TestResult = require('../models/testresult.model');
+const Alert = require('../models/alert.model');
 const response = require('../schemas/api.response.testresult');
 const globalparams = require('../../globalparams.json');
 const winston = require('../../utils/winston');
+const async = require('async');
+const moment = require('moment');
 
 exports.test = function (req, res) {
     winston.info(`Hello there!' - ${req.originalUrl} - ${req.method} - ${req.ip}`);
@@ -22,12 +25,10 @@ exports.register = function (req, res, next) {
 };
 
 exports.testresult_create = function (req, res, next) {
-let trsuccessflag = true;
+    let responsereturned = false;
 
-    winston.info(`finding test ${JSON.stringify(req.body.normal)} - ${req.originalUrl} - ${req.method} - ${req.ip}`);
-
-req.body.forEach((element) => {
-    User.findOne({"mobile": element.mobile, "countrycode": element.countrycode}, function(err, user) {
+    async.each(req.body, function (element, callback) {
+        User.findOne({"mobile": element.mobile, "countrycode": element.countrycode}, function(err, user) {
         if(err){
             winston.error(`${err.status || 500} - error while finding test - ${err.message} - ${req.originalUrl} - ${req.method} - ${req.ip}`);
             return next(err);
@@ -36,7 +37,31 @@ req.body.forEach((element) => {
             winston.info(`user found: ${user} age: ${user.age} gender: ${user.gender} - ${req.originalUrl} - ${req.method} - ${req.ip}`);
 
             let userageontest = (element.age ? element.age : user.age);
+            let retrievedalert = {id:null, startdate:null, enddate:null, medicinename:null, medfrequency:null};
+
+            winston.info(`finding alert ${element.mobile} ${element.countrycode} ${element.medicinename} id: ${element.medicinealertid} - ${req.originalUrl} - ${req.method} - ${req.ip}`);
+
+            if(element.medicinealertid){
+                Alert.findOne({"mobile": element.mobile, "countrycode": element.countrycode, "id": element.medicinealertid}
+                , function (err, alert) {
+                    if (err) {
+                        winston.error(`${err.status || 500} - error while retrieving alert - ${err.message} - ${req.originalUrl} - ${req.method} - ${req.ip}`);
+                    }
+
+                    if(alert) {
+                        winston.info(`found alerts by mobile - ${req.originalUrl} - ${req.method} - ${req.ip}`);
+                        retrievedalert.id = alert.id;
+                        retrievedalert.startdate = alert.startdate;
+                        retrievedalert.enddate = alert.enddate;
+                        retrievedalert.medicinename = alert.medicinename;
+                        retrievedalert.medfrequency = alert.medfrequency;                        
+                    }
+                });
+            }
+
             
+            winston.info(`finding test ${JSON.stringify(element.testname)} - ${req.originalUrl} - ${req.method} - ${req.ip}`);
+
             Test.findOne({"testname": element.testname,
                             "testagemin": {$lte: userageontest},
                             "testagemax": {$gte: userageontest},
@@ -46,6 +71,7 @@ req.body.forEach((element) => {
                 if (err) {
                     winston.error(`${err.status || 500} - error while finding test by name - ${err.message} - ${req.originalUrl} - ${req.method} - ${req.ip}`);
 
+                    responsereturned = true;
                     return next(err);
                 }
 
@@ -54,6 +80,7 @@ req.body.forEach((element) => {
 
 
                     let testresult = new TestResult({
+                        id: parseInt(moment().format('YYYYMMDDhhmmssSSS'))+Math.floor(Math.random() * 100),
                         testdate: element.testdate,
                         ageontest: element.age? element.age : user.age,
                         testname: element.testname,
@@ -69,17 +96,24 @@ req.body.forEach((element) => {
                                      : (element.value < testgendercountry.normalmin) ? 'low' : 'undetermined',
                         categoryid: testgendercountry.categoryid,
                         category: testgendercountry.category,
-                        notes: element.notes
+                        notes: element.notes,
+                        medicinealertid: retrievedalert.id,
+                        medicinestartdate: retrievedalert.startdate,
+                        medicineenddate: retrievedalert.enddate,
+                        medicinename: retrievedalert.medicinename,
+                        medicinefrequency: retrievedalert.medfrequency
                     });
+                    winston.info(`creating test result - ${req.originalUrl} - ${req.method} - ${req.ip}`);
             
                     testresult.save(function (err) {
                         if (err) {
-                            trsuccessflag = false;
                             winston.error(`${err.status || 500} - error while creating test result - ${err.message} - ${req.originalUrl} - ${req.method} - ${req.ip}`);
 
+                            responsereturned = true;
                             return next(err);
                         }
-                    })
+                        callback();
+                    });
             
                 }
                 else {
@@ -93,6 +127,7 @@ req.body.forEach((element) => {
                                 if (err) {
                                     winston.error(`${err.status || 500} - error while finding test by name - ${err.message} - ${req.originalUrl} - ${req.method} - ${req.ip}`);
 
+                                    responsereturned = true;
                                     return next(err);
                                 }
 
@@ -101,6 +136,7 @@ req.body.forEach((element) => {
 
 
                                     let testresult = new TestResult({
+                                        id: parseInt(moment().format('YYYYMMDDhhmmssSSS'))+Math.floor(Math.random() * 100),
                                         testdate: element.testdate,
                                         ageontest: element.age? element.age : user.age,
                                         testname: element.testname,
@@ -116,30 +152,39 @@ req.body.forEach((element) => {
                                                     : (element.value < testunicountry.normalmin) ? 'low' : 'undetermined',
                                         categoryid: testunicountry.categoryid,
                                         category: testunicountry.category,
-                                        notes: element.notes
+                                        notes: element.notes,
+                                        medicinealertid: retrievedalert.id,
+                                        medicinestartdate: retrievedalert.startdate,
+                                        medicineenddate: retrievedalert.enddate,
+                                        medicinename: retrievedalert.medicinename,
+                                        medicinefrequency: retrievedalert.medfrequency
                                     });
+                                    winston.info(`creating test result - ${req.originalUrl} - ${req.method} - ${req.ip}`);
+
                             
                                     testresult.save(function (err) {
                                         if (err) {
-                                            trsuccessflag = false;
                                             winston.error(`${err.status || 500} - error while creating test result - ${err.message} - ${req.originalUrl} - ${req.method} - ${req.ip}`);
 
+                                            responsereturned = true;
                                             return next(err);
                                         }
-                                    })
+                                        callback();
+                                    });
                             
                                 }
                                 else {
 
-                                                Test.findOne({"testname": element.testname,
-                                                        "testagemin": {$lte: userageontest},
-                                                        "testagemax": {$gte: userageontest},
-                                                        "testgender": user.gender,
-                                                        "countrycode": 0
+                                    Test.findOne({"testname": element.testname,
+                                            "testagemin": {$lte: userageontest},
+                                            "testagemax": {$gte: userageontest},
+                                            "testgender": user.gender,
+                                            "countrycode": 0
                                         }, function (err, testgendergeneric) {
                                             if (err) {
                                                 winston.error(`${err.status || 500} - error while finding test by name - ${err.message} - ${req.originalUrl} - ${req.method} - ${req.ip}`);
 
+                                                responsereturned = true;
                                                 return next(err);
                                             }
 
@@ -148,6 +193,7 @@ req.body.forEach((element) => {
 
 
                                                 let testresult = new TestResult({
+                                                    id: parseInt(moment().format('YYYYMMDDhhmmssSSS'))+Math.floor(Math.random() * 100),
                                                     testdate: element.testdate,
                                                     ageontest: element.age? element.age : user.age,
                                                     testname: element.testname,
@@ -163,17 +209,24 @@ req.body.forEach((element) => {
                                                                 : (element.value < testgendergeneric.normalmin) ? 'low' : 'undetermined',
                                                     categoryid: testgendergeneric.categoryid,
                                                     category: testgendergeneric.category,
-                                                    notes: element.notes
+                                                    notes: element.notes,
+                                                    medicinealertid: retrievedalert.id,
+                                                    medicinestartdate: retrievedalert.startdate,
+                                                    medicineenddate: retrievedalert.enddate,
+                                                    medicinename: retrievedalert.medicinename,
+                                                    medicinefrequency: retrievedalert.medfrequency
                                                 });
+                                                winston.info(`creating test result - ${req.originalUrl} - ${req.method} - ${req.ip}`);
                                         
                                                 testresult.save(function (err) {
                                                     if (err) {
-                                                        trsuccessflag = false;
                                                         winston.error(`${err.status || 500} - error while creating test result - ${err.message} - ${req.originalUrl} - ${req.method} - ${req.ip}`);
 
+                                                        responsereturned = true;
                                                         return next(err);
                                                     }
-                                                })
+                                                    callback();
+                                                });
                                         
                                             }
                                             else {
@@ -187,14 +240,16 @@ req.body.forEach((element) => {
                                                     if (err) {
                                                         winston.error(`${err.status || 500} - error while finding test by name - ${err.message} - ${req.originalUrl} - ${req.method} - ${req.ip}`);
                                     
+                                                        responsereturned = true;
                                                         return next(err);
                                                     }
                                     
-                                                    if(test) {
+                                                    if(testunigeneric) {
                                                         winston.info(`found testunigeneric by name - ${req.originalUrl} - ${req.method} - ${req.ip}`);
                                     
                                     
                                                         let testresult = new TestResult({
+                                                            id: parseInt(moment().format('YYYYMMDDhhmmssSSS'))+Math.floor(Math.random() * 100),
                                                             testdate: element.testdate,
                                                             ageontest: element.age? element.age : user.age,
                                                             testname: element.testname,
@@ -210,103 +265,134 @@ req.body.forEach((element) => {
                                                                         : (element.value < testunigeneric.normalmin) ? 'low' : 'undetermined',
                                                             categoryid: testunigeneric.categoryid,
                                                             category: testunigeneric.category,
-                                                            notes: element.notes
+                                                            notes: element.notes,
+                                                            medicinealertid: retrievedalert.id,
+                                                            medicinestartdate: retrievedalert.startdate,
+                                                            medicineenddate: retrievedalert.enddate,
+                                                            medicinename: retrievedalert.medicinename,
+                                                            medicinefrequency: retrievedalert.medfrequency
                                                         });
+                                                        winston.info(`creating test result - ${req.originalUrl} - ${req.method} - ${req.ip}`);
                                                 
                                                         testresult.save(function (err) {
                                                             if (err) {
-                                                                trsuccessflag = false;
                                                                 winston.error(`${err.status || 500} - error while creating test result - ${err.message} - ${req.originalUrl} - ${req.method} - ${req.ip}`);
                                     
+                                                                responsereturned = true;
                                                                 return next(err);
                                                             }
-                                                        })
+                                                            callback();
+                                                        });
                                                 
                                                     }
                                                     else {
                                     
-                                    
-                                    
-                                                        
-                                                        trsuccessflag = false;
-                                                        winston.info(`test not found by name - ${req.originalUrl} - ${req.method} - ${req.ip}`);
-                                    
-                                                        response.status=200;
-                                                        response.message = 'testname not found: ' + element.testname + '.';
-                                                        response.messagecode = 2002;
-                                                        response.TestResult = null;
-                                                        response.token=null;
+                                                        if(!responsereturned){
+                                                            winston.info(`test not found by name - ${req.originalUrl} - ${req.method} - ${req.ip}`);
+                                        
+                                                            response.status=200;
+                                                            response.message = 'test not found: ' + element.testname + '.';
+                                                            response.messagecode = 2002;
+                                                            response.TestResult = null;
+                                                            response.token=null;
+
+                                                            responsereturned = true;
+                                                            return res.status(response.status).send(response);
+                                                            }
                                                         }
-                                                        winston.info(`creating test result - ${req.originalUrl} - ${req.method} - ${req.ip}`);
                                     
                                                     }); // Test findOne gender and country
+                                            }//***NEW
 
-                                                
-                                                trsuccessflag = false;
-                                                winston.info(`test not found by name - ${req.originalUrl} - ${req.method} - ${req.ip}`);
+                                                //     if(!responsereturned){
+                                                //         winston.info(`testgendergeneric not found by name - ${req.originalUrl} - ${req.method} - ${req.ip}`);
 
-                                                response.status=200;
-                                                response.message = 'testname not found: ' + element.testname + '.';
-                                                response.messagecode = 2002;
-                                                response.TestResult = null;
-                                                response.token=null;
-                                                }
-                                                winston.info(`creating test result - ${req.originalUrl} - ${req.method} - ${req.ip}`);
+                                                //         response.status=200;
+                                                //         response.message = 'testgendergeneric not found: ' + element.testname + '.';
+                                                //         response.messagecode = 2002;
+                                                //         response.TestResult = null;
+                                                //         response.token=null;
+
+                                                //         responsereturned = true;
+                                                //         return res.status(response.status).send(response);
+                                                //     }
+                                                // }
+                                                // winston.info(`creating test result - ${req.originalUrl} - ${req.method} - ${req.ip}`);
 
                                             }); // Test findOne gender and country
+                                            }//***NEW
 
+                                    //         if(!responsereturned){
+                                    //             winston.info(`testunicountry not found by name - ${req.originalUrl} - ${req.method} - ${req.ip}`);
 
-                                    
-                                    trsuccessflag = false;
-                                    winston.info(`test not found by name - ${req.originalUrl} - ${req.method} - ${req.ip}`);
+                                    //             response.status=200;
+                                    //             response.message = 'testunicountry not found: ' + element.testname + '.';
+                                    //             response.messagecode = 2002;
+                                    //             response.TestResult = null;
+                                    //             response.token=null;
 
-                                    response.status=200;
-                                    response.message = 'testname not found: ' + element.testname + '.';
-                                    response.messagecode = 2002;
-                                    response.TestResult = null;
-                                    response.token=null;
-                                    }
-                                    winston.info(`creating test result - ${req.originalUrl} - ${req.method} - ${req.ip}`);
+                                    //             responsereturned = true;
+                                    //             return res.status(response.status).send(response);
+                                    //         }
+                                    //     }
+                                    // winston.info(`creating test result - ${req.originalUrl} - ${req.method} - ${req.ip}`);
 
                                 }); // Test findOne gender and country
+                                            }//***NEW
 
+                    //             if(!responsereturned){
+                    //                 winston.info(`testgendercountry not found by name - ${req.originalUrl} - ${req.method} - ${req.ip}`);
 
-                    trsuccessflag = false;
-                    winston.info(`test not found by name - ${req.originalUrl} - ${req.method} - ${req.ip}`);
+                    //                 response.status=200;
+                    //                 response.message = 'testgendercountry not found: ' + element.testname + '.';
+                    //                 response.messagecode = 2002;
+                    //                 response.TestResult = null;
+                    //                 response.token=null;
 
-                    response.status=200;
-                    response.message = 'testname not found: ' + element.testname + '.';
-                    response.messagecode = 2002;
-                    response.TestResult = null;
-                    response.token=null;
-                    }
-                    winston.info(`creating test result - ${req.originalUrl} - ${req.method} - ${req.ip}`);
+                    //                 responsereturned = true;
+                    //                 return res.status(response.status).send(response);
+                    //             }
+                    // }
+                    // winston.info(`creating test result - ${req.originalUrl} - ${req.method} - ${req.ip}`);
 
                 }); // Test findOne gender and country
       }
       else {
-        trsuccessflag = false;
-        winston.info(`user not found by mobile number - ${req.originalUrl} - ${req.method} - ${req.ip}`);
+            if(!responsereturned){
+                winston.info(`user not found by mobile number - ${req.originalUrl} - ${req.method} - ${req.ip}`);
 
-        response.status=200;
-        response.message = 'user not found: ' + element.countrycode + '-' + element.mobile;
-        response.messagecode = 2008;
-        response.TestResult = null;
-        response.token=null;
+                response.status=200;
+                response.message = 'user not found: ' + element.countrycode + '-' + element.mobile;
+                response.messagecode = 2008;
+                response.TestResult = null;
+                response.token=null;
+
+                responsereturned = true;
+                return res.status(response.status).send(response);
+            }
         }
       });
+    
+}, function (error) {
+        if(error){
+            return next(error);
+        }
+        else{
+            if(!responsereturned){
+                winston.info(`test results created - ${req.originalUrl} - ${req.method} - ${req.ip}`);
+
+                response.message = 'test results registered';
+                response.messagecode = 2003;
+                response.status=200;
+                response.TestResult = null;
+                response.token = null;
+
+                responsereturned = true;
+                return res.status(response.status).send(response);
+            }
+        }
     });
 
-    if(trsuccessflag){
-    winston.info(`test results created - ${req.originalUrl} - ${req.method} - ${req.ip}`);
-
-    response.message = 'test results registered';
-    response.messagecode = 2003;
-    response.status=200;
-    response.TestResult = null;
-    response.token = null;
-    res.status(response.status).send(response);
-    }
 };
 
 exports.testresults_bymobile = function (req, res, next) {

@@ -158,6 +158,14 @@ techerrorres.status=500;
         techerrorres.message = err.message;
         techerrorres.messagecode = 3050;
     }
+    else if(err.message.toLowerCase().includes('alert already exists')){
+        techerrorres.message = err.message;
+        techerrorres.messagecode = 4050;
+    }
+    else if(err.message.toLowerCase().includes('secret question already exists')){
+        techerrorres.message = err.message;
+        techerrorres.messagecode = 7050;
+    }
     else {
         techerrorres.message = 'Internal Server Error! ' + err.message;
         techerrorres.messagecode = 5001;

@@ -1,6 +1,7 @@
 const Feedback = require('../models/feedback.model');
 const response = require('../schemas/api.response.feedback');
 const winston = require('../../utils/winston');
+const moment = require('moment');
 
 //Test
 exports.test = function (req, res) {
@@ -22,7 +23,7 @@ exports.feedback_create = function (req, res, next) {
     winston.info(`creating feedback - ${req.originalUrl} - ${req.method} - ${req.ip}`);
 
     let feedback = new Feedback({
-        id: req.body.id,
+        id: parseInt(moment().format('YYYYMMDDhhmmssSSS'))+Math.floor(Math.random() * 100),
         feedback: req.body.feedback,
         mobile: req.body.mobile,
         countrycode: req.body.countrycode,

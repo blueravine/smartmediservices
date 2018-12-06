@@ -1,6 +1,7 @@
 const SecretQuestion = require('../models/secretquestion.model');
 const response = require('../schemas/api.response.secretquestion');
 const winston = require('../../utils/winston');
+const moment = require('moment');
 
 //Test
 exports.test = function (req, res) {
@@ -22,7 +23,7 @@ exports.secretquestion_create = function (req, res, next) {
     winston.info(`creating secretquestion - ${req.originalUrl} - ${req.method} - ${req.ip}`);
 
     let secretquestion = new SecretQuestion({
-        id: req.body.id,
+        id: parseInt(moment().format('YYYYMMDDhhmmssSSS'))+Math.floor(Math.random() * 100),
         questionid: req.body.questionid,
         question: req.body.question
     });

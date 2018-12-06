@@ -1,9 +1,10 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 const winston = require('../../utils/winston');
+const moment = require('moment');
 
 var alertSchema = new Schema({
-    id: {type: Number, required: false},
+    id: {type: Number, required: false, default: parseInt(moment().format('YYYYMMDDhhmmssSSS'))+Math.floor(Math.random() * 100)},
     mobile: {type: Number, required: false},    
     countrycode: {type: Number, required: false},
     startdate: {type: Number, required: false},
@@ -26,16 +27,15 @@ var alertSchema = new Schema({
 
 alertSchema.pre('save', function (next) {
     var self = this;
-    Alert.find({mobile: self.mobile, countrycode: self.countrycode, medicinename: self.medicinename},
-         function (err, alertdoc) {
-        if (!alertdoc.length){
-            next();
-        }else{
-            winston.info(`Alert exists: ${self.countrycode} - ${self.mobile} - ${self.medicinename}`);
-
-            next(new Error("Alert Already exists for: " + self.countrycode + '-' + self.mobile + ' and ' + self.medicinename));
-        }
-    });
+        Alert.find({mobile: self.mobile, countrycode: self.countrycode, medicinename: self.medicinename},
+            function (err, alertdoc) {
+            if (!alertdoc.length){
+                next();
+            }else{
+                winston.info(`Alert exists: ${self.countrycode} - ${self.mobile} - ${self.medicinename}`);
+                next(new Error(`Alert Already exists for:  ${self.countrycode} - ${self.mobile} and ${self.medicinename}`));
+            }
+        });
 }) ;
 
 var Alert = mongoose.model('Alert', alertSchema);

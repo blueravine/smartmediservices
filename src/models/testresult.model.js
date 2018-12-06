@@ -1,9 +1,10 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 const winston = require('../../utils/winston');
+const moment = require('moment');
 
 var testresultSchema = new Schema({
-    id: {type: Number, required: false},
+    id: {type: Number, required: false, default: parseInt(moment().format('YYYYMMDDhhmmssSSS'))+Math.floor(Math.random() * 100)},
     mobile: {type: Number, required: false},
     countrycode: {type: Number, required: false},
     testdate: {type: Number, required: false},
@@ -18,6 +19,11 @@ var testresultSchema = new Schema({
     notes: {type: String, required: false},
     categoryid: {type: Number, required: false},
     category: {type: String, required: false},
+    medicinealertid: {type: Number, required: false},
+    medicinestartdate: {type: Number, required: false},
+    medicineenddate: {type: Number, required: false},
+    medicinename: {type: String, required: false},
+    medicinefrequency: {type: String, required: false},
     createddate: {type: Date, default: Date.now}
 });
 
@@ -31,7 +37,7 @@ testresultSchema.pre('save', function (next) {
             next();
         }else{
             winston.info(`test result exists: ${self.countrycode} - ${self.mobile} - ${self.testdate} - ${self.testname}`);
-            next(new Error("Test Result Already exists for: " + self.testname + ' on ' + self.testdate));
+            next(new Error('Test Result Already exists for: ' + self.testname + ' on ' + self.testdate));
         }
     });
 }) ;

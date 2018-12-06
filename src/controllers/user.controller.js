@@ -3,6 +3,7 @@ const response = require('../schemas/api.response.user');
 const bcrypt = require('bcrypt');
 const smartjwt = require('../../utils/jwt');
 const winston = require('../../utils/winston');
+const moment = require('moment');
 
 let signOptions = {
     issuer: "smartmediservices",
@@ -31,6 +32,7 @@ exports.user_create = function (req, res, next) {
     winston.info(`creating user - ${req.originalUrl} - ${req.method} - ${req.ip}`);
 
     let user = new User({
+        id: parseInt(moment().format('YYYYMMDDhhmmssSSS'))+Math.floor(Math.random() * 100),
         name: req.body.name,
         mobile: req.body.mobile,
         countrycode: req.body.countrycode,

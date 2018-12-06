@@ -1,19 +1,21 @@
 const Test = require('../models/test.model');
 const response = require('../schemas/api.response.test');
 const winston = require('../../utils/winston');
+const async = require('async');
+const moment = require('moment');
 
 exports.register = function (req, res, next) {
     var newTest = test_create(req);   
 };
 
 exports.test_create = function (req, res, next) {
-let successflag = true;
 
     winston.info(`creating test ${JSON.stringify(req.body)} - ${req.originalUrl} - ${req.method} - ${req.ip}`);
 
-req.body.forEach(element => {
+    async.each(req.body, function (element, callback) {
     
         let test = new Test({
+            id: parseInt(moment().format('YYYYMMDDhhmmssSSS'))+Math.floor(Math.random() * 100),
             countrycode: element.countrycode,
             testname: element.testname,
             testunit: element.testunit,
@@ -27,27 +29,32 @@ req.body.forEach(element => {
             category: element.category,
             notes: element.notes
         });
+        winston.info(`creating test - ${req.originalUrl} - ${req.method} - ${req.ip}`);
 
         test.save(function (err) {
             if (err) {
-                successflag = false;
                 winston.error(`${err.status || 500} - error while creating test - ${err.message} - ${req.originalUrl} - ${req.method} - ${req.ip}`);
 
                 return next(err);
             }
+            callback();
         });
+            }, function (error) {
+                    if(error){
+                        return next(error);
+                    }
+                    else{
+                        winston.info(`tests  created - ${req.originalUrl} - ${req.method} - ${req.ip}`);
+
+                        response.message = 'tests  registered';
+                        response.messagecode = 3001;
+                        response.status=200;
+                        response.Test = null;
+                        response.token = null;
+                        res.status(response.status).send(response);
+                    }
+
     });
-
-    if(successflag){
-    winston.info(`tests  created - ${req.originalUrl} - ${req.method} - ${req.ip}`);
-
-    response.message = 'tests  registered';
-    response.messagecode = 3001;
-    response.status=200;
-    response.Test = null;
-    response.token = null;
-    res.status(response.status).send(response);
-    }
 };
 
 exports.tests_byname = function (req, res, next) {
