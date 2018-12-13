@@ -15,6 +15,8 @@ var userSchema = new Schema({
     gender:{type: String, required: false},
     secretquestionid:{type: Number, required: false},
     secretanswerhash: {type: String, required: true},
+    role: {type: String, default: 'consumer', enum:['consumer','labtech','doctor']},
+    organization: {type: String, default: 'none'},
     createddate: {type: Date, default: Date.now}
 });
 
